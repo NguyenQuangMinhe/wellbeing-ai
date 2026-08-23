@@ -1,75 +1,45 @@
-# React + TypeScript + Vite
+# Wellbeing AI — Mental Wellbeing Support Prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A locally-run prototype chat interface linked to a generative AI model, designed to
+provide safe, early-stage mental wellbeing support using CBT-based approaches.
 
-Currently, two official plugins are available:
+> **Research prototype.** This system does not provide clinical advice, diagnosis,
+> or treatment. It is not a replacement for professional mental health care.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Project Status
 
-## React Compiler
+🚧 Early development — frontend scaffold in progress, backend not yet started.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Scope
 
-## Expanding the ESLint configuration
+**In scope:** local prototype, chat interface, CBT-based responses, RAG-grounded
+generation, risk/safety classification, response safety checks, local-only
+conversation history with user-controlled deletion.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Out of scope:** clinical diagnosis, professional/clinician handoff, internet
+deployment, accounts/login, multi-user support.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 1. Install tools (once per machine)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js ≥ 20
+- pnpm: `npm install -g pnpm`
 
+### 2. Bootstrap (once per clone)
+
+```bash
+pnpm run bootstrap
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+This installs dependencies across the workspace, creates `.env` from
+`.env.example` if it doesn't already exist, and sets up git hooks (if
+configured).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 3. Run the frontend
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+pnpm dev
 ```
+
+Opens the local dev server (default `http://localhost:5173`).
