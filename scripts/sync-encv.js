@@ -17,13 +17,13 @@
  */
 'use strict'
 
-const fs = require('fs')
+import { readFileSync } from 'fs'
 const path = require('path')
 
 const root = path.resolve(__dirname, '..')
 const envPath = path.join(root, '.env')
 
-if (!fs.existsSync(envPath)) {
+if (!existsSync(envPath)) {
   console.error(
     '\x1b[31mNo .env file found at the repo root.\x1b[0m\n' +
       'Create it first:  cp .env.example .env  (then fill in your Firebase values)\n' +
@@ -53,7 +53,7 @@ function parseEnv(content) {
   return vars
 }
 
-const env = parseEnv(fs.readFileSync(envPath, 'utf8'))
+const env = parseEnv(readFileSync(envPath, 'utf8'))
 const get = (key) => env[key] ?? ''
 
 // Back-compat: older .env files (before this project renamed the variable)
@@ -90,8 +90,8 @@ const backendLines = [
   `PORT=${get('PORT')}`,
 ]
 
-fs.writeFileSync(path.join(root, 'frontend', '.env.local'), frontendLines.join('\n') + '\n')
-fs.writeFileSync(path.join(root, 'backend', '.env'), backendLines.join('\n') + '\n')
+writeFileSync(path.join(root, 'frontend', '.env.local'), frontendLines.join('\n') + '\n')
+writeFileSync(path.join(root, 'backend', '.env'), backendLines.join('\n') + '\n')
 
 console.log('env:sync  .env → frontend/.env.local, backend/.env')
 

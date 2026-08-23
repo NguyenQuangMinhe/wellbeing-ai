@@ -5,7 +5,7 @@
  *
  * Usage: node scripts/check-commit-msg.js <commit-msg-file>
  */
-const fs = require('fs')
+import { readFileSync } from 'fs'
 
 const msgFile = process.argv[2]
 if (!msgFile) {
@@ -13,7 +13,7 @@ if (!msgFile) {
   process.exit(1)
 }
 
-const msg = fs.readFileSync(msgFile, 'utf8').trim()
+const msg = readFileSync(msgFile, 'utf8').trim()
 const pattern = /^(feat|fix|docs|style|refactor|test|chore|build|ci|perf|revert)(\(.+\))?: .{1,100}/
 
 if (!pattern.test(msg)) {

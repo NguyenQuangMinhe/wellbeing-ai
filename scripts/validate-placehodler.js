@@ -14,7 +14,7 @@
  */
 
 const { execSync } = require('child_process')
-const fs = require('fs')
+import { readFileSync } from 'fs'
 const path = require('path')
 
 // Matches {{single-word}} or {{kebab-case}} or {{snake_case}} only
@@ -57,7 +57,7 @@ function checkFile(filePath) {
 
   let content
   try {
-    content = fs.readFileSync(filePath, 'utf8')
+    content = readFileSync(filePath, 'utf8')
   } catch {
     return []
   }
