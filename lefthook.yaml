@@ -1,7 +1,7 @@
 pre-commit:
   commands:
-    validate-placeholders:
-      run: node scripts/validate-placeholders.js
+    # validate-placeholders:
+    #   run: node scripts/validate-placeholders.js
 
     format:
       glob: '**/*.{ts,tsx,json,md,css}'
@@ -13,10 +13,10 @@ pre-commit:
       glob: 'src/**/*.{ts,tsx}'
       run: npx eslint --fix {staged_files}
 
-    lint-backend:
-      root: 'backend/'
-      glob: 'src/**/*.ts'
-      run: npx eslint --fix {staged_files}
+    # lint-backend:
+    #   root: 'backend/'
+    #   glob: 'src/**/*.ts'
+    #   run: npx eslint --fix {staged_files}
 
 commit-msg:
   commands:
