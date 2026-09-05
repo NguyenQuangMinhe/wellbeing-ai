@@ -5,7 +5,7 @@ import { useChatSession } from "./hooks/useChatSession";
 function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [inputText, setInputText] = useState("");
-  const { messages, send, isLoading, crisisTriggered, error } =
+  const { messages, send, isLoading, crisisTriggered, crisisMessage, error } =
     useChatSession(sessionId);
 
   function handleSend() {
@@ -17,6 +17,7 @@ function App() {
     return (
       <div className="crisis-overlay">
         <h2>You deserve support right now</h2>
+        {crisisMessage && <p style={{ whiteSpace: 'pre-line' }}>{crisisMessage}</p>}
       </div>
     );
   }

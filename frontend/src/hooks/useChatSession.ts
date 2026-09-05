@@ -12,6 +12,7 @@ export function useChatSession(sessionId: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [crisisTriggered, setCrisisTriggered] = useState(false);
+  const [crisisMessage, setCrisisMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function send(text: string) {
@@ -27,6 +28,7 @@ export function useChatSession(sessionId: string) {
 
       if (data.type === "crisis") {
         setCrisisTriggered(true);
+        setCrisisMessage(data.message);
       } else {
         setMessages((prev) => [
           ...prev,
@@ -44,5 +46,5 @@ export function useChatSession(sessionId: string) {
     }
   }
 
-  return { messages, send, isLoading, crisisTriggered, error };
+  return { messages, send, isLoading, crisisTriggered, crisisMessage, error };
 }
