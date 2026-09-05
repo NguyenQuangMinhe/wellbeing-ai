@@ -5,10 +5,16 @@
   "scripts": {
     "dev": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
-    "test:backend": "cd backend && pytest",
-    "test:all": "pnpm --filter frontend test && pnpm test:backend",
+    "test": "pnpm --filter frontend test",
+    "test:e2e": "pnpm --filter frontend test:e2e",
     "lint": "pnpm --filter frontend lint",
-    "bootstrap": "node scripts/bootstrap.js"
+    "bootstrap": "node scripts/bootstrap.js",
+
+    "backend:dev": "cd backend && venv\\Scripts\\activate && uvicorn app.main:app --reload --port 8000",
+    "backend:test": "cd backend && venv\\Scripts\\activate && pytest",
+    "backend:install": "cd backend && pip install -r requirements.txt",
+
+    "test:all": "pnpm test && pnpm run backend:test"
   },
   "devDependencies": {
     "lefthook": "^2.1.10"
