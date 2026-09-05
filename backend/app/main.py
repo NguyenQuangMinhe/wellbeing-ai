@@ -1,3 +1,4 @@
+from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import ChatRequest, ChatResponse
@@ -14,7 +15,15 @@ app.add_middleware(
 
 @app.post("/api/message", response_model=ChatResponse)
 async def handle_message(request: ChatRequest) -> ChatResponse:
-    # Stub — no classifier, RAG, or LLM wired up yet.
+    # First tier
+    if detect_crisis(request.message):
+        return ChatResponse(
+            type="crisis",
+            message=CRISIS_RESPONSE_MESSAGE,
+            risk_level="high",
+            end_session=True,
+        )
+    # Stub — classifier/RAG/LLM not wired up yet
     return ChatResponse(
         type="normal",
         message=f"(stub) I heard: {request.message}",

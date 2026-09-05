@@ -24,7 +24,8 @@ function App() {
     <div>
       {/*Disclaimer*/}
       <div className="disclaimer">
-        This is a research prototype. It does not provide clinical advice, diagnosis, or treatment.
+        This is a research prototype. It does not provide clinical advice,
+        diagnosis, or treatment.
       </div>
       {/*Chat area*/}
       <div className="chat-area">
