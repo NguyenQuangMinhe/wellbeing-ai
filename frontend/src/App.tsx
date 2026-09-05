@@ -17,7 +17,9 @@ function App() {
     return (
       <div className="crisis-overlay">
         <h2>You deserve support right now</h2>
-        {crisisMessage && <p style={{ whiteSpace: 'pre-line' }}>{crisisMessage}</p>}
+        {crisisMessage && (
+          <p style={{ whiteSpace: "pre-line" }}>{crisisMessage}</p>
+        )}
       </div>
     );
   }
