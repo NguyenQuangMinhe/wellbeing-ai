@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
-    "test": "pnpm --filter frontend test",
+    "test:backend": "cd backend && pytest",
+    "test:all": "pnpm --filter frontend test && pnpm test:backend",
     "lint": "pnpm --filter frontend lint",
     "bootstrap": "node scripts/bootstrap.js"
   },
