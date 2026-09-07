@@ -6,10 +6,6 @@ provide safe, early-stage mental wellbeing support using CBT-based approaches.
 > **Research prototype.** This system does not provide clinical advice, diagnosis,
 > or treatment. It is not a replacement for professional mental health care.
 
-## Project Status
-
-🚧 Early development — frontend scaffold in progress, backend not yet started.
-
 ## Scope
 
 **In scope:** local prototype, chat interface, CBT-based responses, RAG-grounded
