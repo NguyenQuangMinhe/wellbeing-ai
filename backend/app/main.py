@@ -1,5 +1,5 @@
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
-from backend.app.storage.history_store import add_entry, delete_history, init_db
+from app.storage.history_store import add_entry, delete_history, init_db
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import ChatRequest, ChatResponse
