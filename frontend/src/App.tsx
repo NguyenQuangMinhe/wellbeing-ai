@@ -13,6 +13,11 @@ function App() {
     send(inputText);
     setInputText("");
   }
+  function handleClear() {
+    if (window.confirm('Clear this conversation? This cannot be undone.')) {
+      clear();
+    }
+  }
   if (crisisTriggered) {
     return (
       <div className="crisis-overlay">
@@ -30,6 +35,7 @@ function App() {
         This is a research prototype. It does not provide clinical advice,
         diagnosis, or treatment.
       </div>
+      <button onClick={handleClear} className="clear-btn">Clear history</button>
       {/*Chat area*/}
       <div className="chat-area">
         {messages.map((msg, i) => (

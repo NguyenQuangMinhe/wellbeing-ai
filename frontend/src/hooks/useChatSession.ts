@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { sendMessage } from "../api/client";
+import { sendMessage, clearHistory } from "../api/client";
 import type { ChatResponse } from "../types/chat";
 
 type Message = {
@@ -43,6 +43,17 @@ export function useChatSession(sessionId: string) {
       setError("The assistant is unavailable right now. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  }
+  async function clear() {
+    try {
+      await clearHistory(sessionId);
+      setMessages([]);
+      setCrisisTriggered(false);
+      setCrisisMessage(null);
+      setError(null);
+    } catch (err) {
+      setError('Could not clear history. Please try again.');
     }
   }
 

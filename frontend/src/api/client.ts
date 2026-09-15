@@ -15,3 +15,10 @@ export async function sendMessage(payload: ChatRequest): Promise<ChatResponse> {
 
   return response.json();
 }
+export async function clearHistory(sessionId: string): Promise<{ deleted: number }> {
+  const response = await fetch(`${API_BASE_URL}/api/history/${sessionId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error(`Failed to clear history: ${response.status}`);
+  return response.json();
+}
