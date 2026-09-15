@@ -43,3 +43,34 @@ def init_db() -> None:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_session_id ON history(session_id)"
         )
+
+
+def add_entry(session_id: str, role: str, message: str, risk_level: RiskLevel) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO history (session_id, role, message, risk_level, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (session_id, role, message, risk_level, datetime.now(timezone.utc).isoformat()),
+        )
+
+def get_history(session_id: str) -> list[HistoryEntry]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT id, session_id, role, message, risk_level, created_at
+            FROM history
+            WHERE session_id = ?
+            ORDER BY created_at ASC
+            """,
+            (session_id,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+def delete_history(session_id: str) -> int:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "DELETE FROM history WHERE session_id = ?",
+            (session_id,),
+        )
+        return rows.rowcount
