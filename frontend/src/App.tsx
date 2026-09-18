@@ -5,8 +5,15 @@ import { useChatSession } from "./hooks/useChatSession";
 function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [inputText, setInputText] = useState("");
-  const { messages, send, clear, isLoading, crisisTriggered, crisisMessage, error } =
-    useChatSession(sessionId);
+  const {
+    messages,
+    send,
+    clear,
+    isLoading,
+    crisisTriggered,
+    crisisMessage,
+    error,
+  } = useChatSession(sessionId);
 
   function handleSend() {
     if (!inputText.trim()) return;

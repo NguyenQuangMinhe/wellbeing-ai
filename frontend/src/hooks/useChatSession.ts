@@ -57,5 +57,13 @@ export function useChatSession(sessionId: string) {
     }
   }
 
-  return { messages, send, clear, isLoading, crisisTriggered, crisisMessage, error };
+  return {
+    messages,
+    send,
+    clear,
+    isLoading,
+    crisisTriggered,
+    crisisMessage,
+    error,
+  };
 }
