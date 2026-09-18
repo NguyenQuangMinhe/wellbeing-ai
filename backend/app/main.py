@@ -1,4 +1,5 @@
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
+from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
 from app.storage.history_store import add_entry, delete_history, init_db, set_session_locked, is_session_locked
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,9 +35,12 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     # First tier
     if detect_crisis(request.message):
         response = ChatResponse(type="crisis", message=CRISIS_RESPONSE_MESSAGE, risk_level="high", end_session=True)
-        add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", "crisis",  response.risk_level) # hasnt handled risks yet (low default) + stub response type
+        add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type,  response.risk_level) # hasnt handled risks yet (low default) + stub response type
         return response
-    # TODO: boundary
+    if detect_boundary(request.message):
+        response = ChatResponse(type="boundary", message=BOUNDARY_RESPONSE_MESSAGE, risk_level="medium", end_session=False)
+        add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type, response.risk_level)
+        return response
     # TODO: intent
 
     # Prompt from session historuy + new message
