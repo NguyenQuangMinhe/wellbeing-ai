@@ -1,5 +1,5 @@
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
-from app.storage.history_store import add_entry, delete_history, init_db
+from app.storage.history_store import add_entry, delete_history, init_db, set_session_locked, is_session_locked
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import ChatRequest, ChatResponse
@@ -19,6 +19,17 @@ async def startup():
 
 @app.post("/api/message", response_model=ChatResponse)
 async def handle_message(request: ChatRequest) -> ChatResponse:
+    # Session lock check first
+    if is_session_locked(request.session_id):
+        return ChatResponse(
+            type="crisis",
+            message=(
+                "This session has been ended for your safety. Please reach out "
+                "to a crisis service directly, or start a new conversation."
+            ),
+            risk_level="high",
+            end_session=True,
+        )
 
     # First tier
     if detect_crisis(request.message):
