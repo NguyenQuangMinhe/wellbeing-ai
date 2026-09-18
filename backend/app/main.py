@@ -3,6 +3,7 @@ from app.storage.history_store import add_entry, delete_history, init_db
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import ChatRequest, ChatResponse
+from app.llm.prompt_builder import build_prompt
 
 app = FastAPI()
 
@@ -18,7 +19,6 @@ async def startup():
 
 @app.post("/api/message", response_model=ChatResponse)
 async def handle_message(request: ChatRequest) -> ChatResponse:
-    add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", "normal",  "low") # hasnt handled risks yet (low default) + stub response type
 
     # First tier
     if detect_crisis(request.message):
@@ -28,14 +28,21 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     # TODO: boundary
     # TODO: intent
 
+    # Prompt from session historuy + new message
+    # TODO: not yet sent to LLM
+    prompt = build_prompt(request.session_id, request.message)
+
     
     # Stub - classifier/RAG/LLM not wired up yet
-    return ChatResponse(
+    response = ChatResponse(
         type="normal",
-        message=f"(stub) I heard: {request.message}",
+        message=f"(stub, prompt assembled with {len(prompt)} chars) I heard: {request.message}",
         risk_level="low",
         end_session=False,
     )
+
+    add_entry(request.session_id, request.message, response.message, response.type, response.risk_level) # hasnt handled risks yet (low default) + stub response type
+    return response
 
 @app.delete("/api/history/{session_id}")
 async def clear_history(session_id: str):
