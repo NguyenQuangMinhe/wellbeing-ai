@@ -9,7 +9,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
-    allow_methods=["POST"],
+    allow_methods=["POST", "DELETE", "GET"],
     allow_headers=["*"],
 )
 @app.on_event("startup")

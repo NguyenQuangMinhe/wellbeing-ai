@@ -5,7 +5,7 @@ import { useChatSession } from "./hooks/useChatSession";
 function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [inputText, setInputText] = useState("");
-  const { messages, send, isLoading, crisisTriggered, crisisMessage, error } =
+  const { messages, send, clear, isLoading, crisisTriggered, crisisMessage, error } =
     useChatSession(sessionId);
 
   function handleSend() {
@@ -14,7 +14,7 @@ function App() {
     setInputText("");
   }
   function handleClear() {
-    if (window.confirm('Clear this conversation? This cannot be undone.')) {
+    if (window.confirm("Clear this conversation? This cannot be undone.")) {
       clear();
     }
   }
@@ -35,7 +35,9 @@ function App() {
         This is a research prototype. It does not provide clinical advice,
         diagnosis, or treatment.
       </div>
-      <button onClick={handleClear} className="clear-btn">Clear history</button>
+      <button onClick={handleClear} className="clear-btn">
+        Clear history
+      </button>
       {/*Chat area*/}
       <div className="chat-area">
         {messages.map((msg, i) => (

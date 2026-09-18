@@ -53,9 +53,9 @@ export function useChatSession(sessionId: string) {
       setCrisisMessage(null);
       setError(null);
     } catch (err) {
-      setError('Could not clear history. Please try again.');
+      setError("Could not clear history. Please try again.");
     }
   }
 
-  return { messages, send, isLoading, crisisTriggered, crisisMessage, error };
+  return { messages, send, clear, isLoading, crisisTriggered, crisisMessage, error };
 }
