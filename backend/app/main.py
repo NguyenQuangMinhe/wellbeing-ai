@@ -18,12 +18,12 @@ async def startup():
 
 @app.post("/api/message", response_model=ChatResponse)
 async def handle_message(request: ChatRequest) -> ChatResponse:
-    add_entry(request.session_id, "user", request.message, "low") # hasnt handled risks yet (low default)
+    add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", "normal",  "low") # hasnt handled risks yet (low default) + stub response type
 
     # First tier
     if detect_crisis(request.message):
         response = ChatResponse(type="crisis", message=CRISIS_RESPONSE_MESSAGE, risk_level="high", end_session=True)
-        add_entry(request.session_id, "system", response.message, response.risk_level)
+        add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", "crisis",  response.risk_level) # hasnt handled risks yet (low default) + stub response type
         return response
     # TODO: boundary
     # TODO: intent

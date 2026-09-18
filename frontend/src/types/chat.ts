@@ -4,7 +4,7 @@ export type ChatRequest = {
 };
 
 export type ChatResponse = {
-  type: "normal" | "crisis" | "error";
+  type: "normal" | "crisis" | "error"| "boundary";
   message: string;
   risk_level: "low" | "medium" | "high";
   end_session: boolean;
