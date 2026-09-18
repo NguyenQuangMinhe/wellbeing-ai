@@ -95,6 +95,7 @@ def delete_history(session_id: str) -> int:
         return rows.rowcount
 
 # Session lock function, treats the session as terminated regardless of frontend local state
+# TODO: apply session lock
 def set_session_locked(session_id: str, locked: bool = True) -> None:
     with get_connection() as conn:
         conn.execute(

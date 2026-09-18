@@ -12,6 +12,8 @@ function App() {
     isLoading,
     crisisTriggered,
     crisisMessage,
+    boundaryTriggered,
+    boundaryMessage,
     error,
   } = useChatSession(sessionId);
 
@@ -31,6 +33,16 @@ function App() {
         <h2>You deserve support right now</h2>
         {crisisMessage && (
           <p style={{ whiteSpace: "pre-line" }}>{crisisMessage}</p>
+        )}
+      </div>
+    );
+  }
+  if (boundaryTriggered) {
+    return (
+      <div className="boundary-overlay">
+        <h2>Important Notice</h2>
+        {boundaryMessage && (
+          <p style={{ whiteSpace: "pre-line" }}>{boundaryMessage}</p>
         )}
       </div>
     );
