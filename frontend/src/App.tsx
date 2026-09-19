@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
 import { useChatSession } from "./hooks/useChatSession";
 
 function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [inputText, setInputText] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const {
     messages,
     send,
@@ -16,6 +17,10 @@ function App() {
     boundaryMessage,
     error,
   } = useChatSession(sessionId);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  });
 
   function handleSend() {
     if (!inputText.trim()) return;
@@ -71,6 +76,7 @@ function App() {
       {/*Input area*/}
       <div className="input-bar">
         <textarea
+          ref={textareaRef}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => {
