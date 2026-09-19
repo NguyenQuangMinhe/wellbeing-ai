@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { sendMessage } from "../api/client";
+import { sendMessage, clearHistory } from "../api/client";
 import type { ChatResponse } from "../types/chat";
 
 type Message = {
@@ -13,6 +13,8 @@ export function useChatSession(sessionId: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [crisisTriggered, setCrisisTriggered] = useState(false);
   const [crisisMessage, setCrisisMessage] = useState<string | null>(null);
+  const [boundaryTriggered, setBoundaryTriggered] = useState(false);
+  const [boundaryMessage, setBoundaryMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function send(text: string) {
@@ -29,6 +31,9 @@ export function useChatSession(sessionId: string) {
       if (data.type === "crisis") {
         setCrisisTriggered(true);
         setCrisisMessage(data.message);
+      } else if (data.type === "boundary") {
+        setBoundaryTriggered(true);
+        setBoundaryMessage(data.message);
       } else {
         setMessages((prev) => [
           ...prev,
@@ -45,6 +50,29 @@ export function useChatSession(sessionId: string) {
       setIsLoading(false);
     }
   }
+  async function clear() {
+    try {
+      await clearHistory(sessionId);
+      setMessages([]);
+      setCrisisTriggered(false);
+      setCrisisMessage(null);
+      setBoundaryTriggered(false);
+      setBoundaryMessage(null);
+      setError(null);
+    } catch (err) {
+      setError("Could not clear history. Please try again.");
+    }
+  }
 
-  return { messages, send, isLoading, crisisTriggered, crisisMessage, error };
+  return {
+    messages,
+    send,
+    clear,
+    isLoading,
+    crisisTriggered,
+    crisisMessage,
+    boundaryTriggered,
+    boundaryMessage,
+    error,
+  };
 }

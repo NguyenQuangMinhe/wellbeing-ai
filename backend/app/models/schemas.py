@@ -8,7 +8,7 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    type: Literal["normal", "crisis", "error"]
+    type: Literal["normal", "crisis", "error", "boundary"]
     message: str
     risk_level: Literal["low", "medium", "high"]
     end_session: bool

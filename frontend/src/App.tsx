@@ -1,17 +1,36 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
 import { useChatSession } from "./hooks/useChatSession";
 
 function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [inputText, setInputText] = useState("");
-  const { messages, send, isLoading, crisisTriggered, crisisMessage, error } =
-    useChatSession(sessionId);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    messages,
+    send,
+    clear,
+    isLoading,
+    crisisTriggered,
+    crisisMessage,
+    boundaryTriggered,
+    boundaryMessage,
+    error,
+  } = useChatSession(sessionId);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  });
 
   function handleSend() {
     if (!inputText.trim()) return;
     send(inputText);
     setInputText("");
+  }
+  function handleClear() {
+    if (window.confirm("Clear this conversation? This cannot be undone.")) {
+      clear();
+    }
   }
   if (crisisTriggered) {
     return (
@@ -23,6 +42,16 @@ function App() {
       </div>
     );
   }
+  if (boundaryTriggered) {
+    return (
+      <div className="boundary-overlay">
+        <h2>Important Notice</h2>
+        {boundaryMessage && (
+          <p style={{ whiteSpace: "pre-line" }}>{boundaryMessage}</p>
+        )}
+      </div>
+    );
+  }
   return (
     <div>
       {/*Disclaimer*/}
@@ -30,6 +59,9 @@ function App() {
         This is a research prototype. It does not provide clinical advice,
         diagnosis, or treatment.
       </div>
+      <button onClick={handleClear} className="clear-btn">
+        Clear history
+      </button>
       {/*Chat area*/}
       <div className="chat-area">
         {messages.map((msg, i) => (
@@ -44,6 +76,7 @@ function App() {
       {/*Input area*/}
       <div className="input-bar">
         <textarea
+          ref={textareaRef}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => {

@@ -33,3 +33,6 @@ dist-ssr
 # Env
 .env
 .env.local
+
+# Databse
+backend/data/*.db
