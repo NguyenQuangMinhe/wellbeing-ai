@@ -2,7 +2,12 @@ import csv
 import re
 from pathlib import Path
 
+import chromadb
+
+from app.llm.ollama_clients import embedding_model
+
 KNOWLEDGE_BASE_DIR = Path(__file__).parent / "knowledge_base"
+CHROMA_DIR = Path(__file__).parent.parent.parent / "data" / "chroma"
 
 DOCUMENT_METADATA = {
     "01_cbt_principles.md": {"document_id": "KB-01"},
@@ -50,7 +55,6 @@ def chunk_markdown_file(filepath: Path) -> list[dict]:
 
 
 def load_stage_lookup(coverage_map_path: Path) -> dict[str, str]:
-    """Maps section_id -> stage, from coverage_map.csv."""
     lookup = {}
     with open(coverage_map_path, encoding="utf-8") as f:
         for row in csv.DictReader(f):
@@ -59,7 +63,6 @@ def load_stage_lookup(coverage_map_path: Path) -> dict[str, str]:
 
 
 def build_chunks() -> list[dict]:
-    """Chunks all knowledge base files and attaches stage metadata."""
     stage_lookup = load_stage_lookup(KNOWLEDGE_BASE_DIR / "coverage_map.csv")
 
     all_chunks = []
@@ -72,9 +75,65 @@ def build_chunks() -> list[dict]:
     return all_chunks
 
 
-if __name__ == "__main__":
+def get_collection():
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    return client.get_or_create_collection(name="cbt_knowledge_base")
+
+
+def ingest() -> int:
+    """
+    Chunks the knowledge base, embeds each chunk via nomic-embed-text,
+    and upserts into the local ChromaDB collection. Uses section_id as
+    the document ID, so re-running this is idempotent - a chunk with an
+    existing ID is overwritten in place, not duplicated.
+    """
     chunks = build_chunks()
-    print(f"Total chunks: {len(chunks)}\n")
-    for c in chunks:
-        print(f"{c['section_id']} [{c['stage']}] — {c['title']}")
-        print(f"  refs: {c['source_refs']}")
+    collection = get_collection()
+
+    ids, documents, embeddings, metadatas = [], [], [], []
+    for chunk in chunks:
+        ids.append(chunk["section_id"])
+        documents.append(chunk["text"])
+        embeddings.append(embedding_model.get_text_embedding(chunk["text"]))
+        metadatas.append({
+            "document_id": chunk["document_id"],
+            "title": chunk["title"],
+            "stage": chunk["stage"],
+            "source_refs": chunk["source_refs"],
+        })
+
+    collection.upsert(
+        ids=ids,
+        documents=documents,
+        embeddings=embeddings,
+        metadatas=metadatas,
+    )
+
+    return len(chunks)
+
+
+def query(text: str, n_results: int = 3):
+    collection = get_collection()
+    query_embedding = embedding_model.get_text_embedding(text)
+    return collection.query(query_embeddings=[query_embedding], n_results=n_results)
+
+
+if __name__ == "__main__":
+    count = ingest()
+    print(f"Ingested {count} chunks into ChromaDB at {CHROMA_DIR}\n")
+    print(f"Collection count: {get_collection().count()}\n")
+
+    test_queries = [
+        "How should the AI respond when someone wants to end the conversation?",
+        "What should happen if the AI detects a crisis?",
+        "How does the AI help someone identify unhelpful thinking patterns?",
+    ]
+
+    for test_query in test_queries:
+        print(f"Test query: {test_query!r}\n")
+        results = query(test_query)
+        for i, (doc_id, doc_text, meta) in enumerate(
+            zip(results["ids"][0], results["documents"][0], results["metadatas"][0])
+        ):
+            print(f"  {i+1}. {doc_id} [{meta['stage']}] — {meta['title']}")
+        print()
