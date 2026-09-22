@@ -1,0 +1,16 @@
+coverage_id,coverage_type,requirement,document_id,section_id,stage,how_supported,srs_reference
+C01,principle,"Thoughts, feelings, actions connection",KB-01,KB-01.1,Explore; Reflect,Names the connection and offers tentative reflection,SRS 2.3 Thoughts feelings actions are connected; 2.5 Explore/Reflect
+C02,principle,Identify unhelpful thoughts,KB-01,KB-01.2,Reflect,Asks permission to examine an interpretation without labeling the person,SRS 2.3 Identify unhelpful thoughts; 2.5 Reflect
+C03,principle,Goal orientation and problem focus,KB-01,KB-01.3,Finish,Invites a person-chosen current goal without a treatment plan,SRS 2.3 Goal oriented; 2.5 Finish
+C04,principle,Present focus,KB-01,KB-01.4,Start; Explore,Starts from a current concern and follows user preference,SRS 2.3 Present focus; 2.5 Start; AC 7.3
+C05,principle,Educative aim / independent reflection,KB-01,KB-01.5,Reflect; Finish,Encourages reusable understanding without claiming to deliver therapy,SRS 2.3 Educative aim; 2.4 Limitations
+C06,stage,Start,KB-02,KB-02.1,Start,Role disclosure and invitation to describe the present concern,SRS 2.5 Start; AC 3.1; AC 7.1
+C07,stage,Start,KB-02,KB-02.2,Start,Clarifies only as needed without forced questionnaire,SRS 2.5 Start; 1.4.1 No questionnaire; AC 2.3
+C08,stage,Explore,KB-02,KB-02.3,Explore,Invites a specific situation and associated experience,SRS 2.5 Explore; AC 7.2; AC 9.1
+C09,stage,Explore,KB-02,KB-02.4,Explore,Connects thoughts feelings and actions tentatively,SRS 2.5 Explore; AC 7.2; AC 8.1 - 8.3
+C10,stage,Reflect,KB-02,KB-02.5,Reflect,Examines an interpretation with permission,SRS 2.5 Reflect; §2.3 Identify unhelpful thoughts; AC 7.2
+C11,stage,Reflect,KB-02,KB-02.6,Reflect,Allows correction of a proposed connection,SRS 2.5 Reflect; AC 8.1 - 8.3
+C12,stage,Finish,KB-02,KB-02.7,Finish,Summarises only endorsed observations,SRS 2.5 Finish; AC 9.3
+C13,stage,Finish,KB-02,KB-02.8,Finish,Optional person-chosen next step,SRS 2.5 Finish; 2.3 Goal oriented; AC 2.4
+C14,cross-cutting,Safety takes precedence over all stages,KB-03,KB-03.2,Start; Explore; Reflect; Finish,High risk bypasses retrieval and ends the normal CBT flow on the classified message,SRS 1.4.1 and 1.4.3; AC 11.4
+C15,cross-cutting,No diagnosis medication or treatment recommendation,KB-03,KB-03.3,Start; Explore; Reflect; Finish,Defines retrieval boundary for clinical requests,SRS 1.4.3; AC 10.1 - 10.4
