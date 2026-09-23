@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useChatSession } from "./hooks/useChatSession";
+import { TakeoverScreen } from "./components/Takeover";
 
 type DeleteStatus = "idle" | "confirming" | "loading" | "error";
 
@@ -58,6 +59,14 @@ function App() {
     } catch {
       setDeleteStatus("error");
     }
+  }
+  if (takeoverActive) {
+    return (
+      <TakeoverScreen
+        kind={crisisTriggered ? "crisis" : "boundary"}
+        message={crisisTriggered ? crisisMessage : boundaryTriggered ? boundaryMessage : null}
+      />
+    );
   }
 
   return (
