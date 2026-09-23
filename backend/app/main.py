@@ -30,8 +30,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             response = ChatResponse(
                 type="crisis",
                 message=(
-                    "This session has been ended for your safety. Please reach out "
-                    "to a crisis service directly, or start a new conversation."
+                    "Unfortunately, I’m unable to help with that request, I can help reflect on thoughts and feelings by cannot provide diagnosis, medication or crisis support"
                 ),
                 risk_level="high",
                 end_session=True,
