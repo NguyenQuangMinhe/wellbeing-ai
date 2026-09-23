@@ -3,7 +3,13 @@ import "./App.css";
 import { useChatSession } from "./hooks/useChatSession";
 
 function App() {
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId] = useState(() => {
+    const existing = localStorage.getItem('wellbeing_session_id');
+    if (existing) return existing;
+    const newId = crypto.randomUUID();
+    localStorage.setItem('wellbeing_session_id', newId);
+    return newId;
+  });
   const [inputText, setInputText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const {
