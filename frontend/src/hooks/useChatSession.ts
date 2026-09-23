@@ -45,7 +45,7 @@ export function useChatSession(sessionId: string) {
         setCrisisTriggered(true);
       }
     } catch (err) {
-      setError("The assistant is unavailable right now. Please try again.");
+      setError("We couldn't generate a response right now. Please try again later. Sorry for the inconvenience.");
     } finally {
       setIsLoading(false);
     }
