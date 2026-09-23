@@ -27,7 +27,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     try: 
         # Session lock check first
         if is_session_locked(request.session_id):
-            return ChatResponse(
+            response = ChatResponse(
                 type="crisis",
                 message=(
                     "This session has been ended for your safety. Please reach out "
@@ -36,6 +36,8 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
                 risk_level="high",
                 end_session=True,
             )
+            add_entry(request.session_id, request.message, response.message, response.type, response.risk_level)
+            return response
 
         # First tier
         if detect_crisis(request.message):
