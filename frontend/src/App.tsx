@@ -10,6 +10,7 @@ function App() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isTimedOut, setIsTimedOut] = useState(false);
 
   const {
     messages,
@@ -33,6 +34,15 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
+  useEffect(() => {
+    if (!isLoading) {
+      setIsTimedOut(false);
+      return;
+    }
+    const timer = setTimeout(() => setIsTimedOut(true), 15000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   function handleSend() {
     if (!inputText.trim() || isLoading || takeoverActive) return;
     send(inputText);
@@ -50,7 +60,9 @@ function App() {
   }
 
   if (takeoverActive) {
-    const heading = crisisTriggered ? "You deserve support right now" : "Important notice";
+    const heading = crisisTriggered
+      ? "You deserve support right now"
+      : "Important notice";
     const body = crisisTriggered ? crisisMessage : boundaryMessage;
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white p-2">
@@ -88,7 +100,15 @@ function App() {
           aria-expanded={menuOpen}
           className="rounded p-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="h-5 w-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            className="h-5 w-5"
+          >
             <line x1="4" y1="6" x2="20" y2="6" />
             <line x1="4" y1="12" x2="20" y2="12" />
             <line x1="4" y1="18" x2="20" y2="18" />
@@ -96,7 +116,10 @@ function App() {
         </button>
 
         {menuOpen && (
-          <div role="menu" className="absolute right-2 top-full z-10 mt-1 w-40 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+          <div
+            role="menu"
+            className="absolute right-2 top-full z-10 mt-1 w-40 rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+          >
             <button
               type="button"
               role="menuitem"
@@ -122,7 +145,7 @@ function App() {
                 : "Delete conversation history permanently?"}
             </p>
             <div className="mt-3 flex items-center justify-center gap-2">
-            {/* Cancel button */}
+              {/* Cancel button */}
               <button
                 type="button"
                 onClick={() => setDeleteStatus("idle")}
@@ -140,8 +163,8 @@ function App() {
                 {deleteStatus === "loading"
                   ? "Deleting…"
                   : deleteStatus === "error"
-                  ? "Try again"
-                  : "Delete"}
+                    ? "Try again"
+                    : "Delete"}
               </button>
             </div>
           </div>
@@ -175,10 +198,21 @@ function App() {
           </div>
         ))}
 
-        {isLoading && (
+        {isLoading && !isTimedOut && (
           <div className="mb-2 flex justify-start">
-            <div className="rounded-md bg-gray-100 p-2 text-sm text-gray-400">
-              Ai is thinking... please wait.
+            <div className="flex items-center gap-1.5 rounded-md bg-gray-100 p-2 text-sm text-gray-400">
+              <span className="sr-only">Ai is thinking, please wait</span>
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
+            </div>
+          </div>
+        )}
+
+        {isLoading && isTimedOut && (
+          <div className="mb-2 flex justify-start">
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-sm text-amber-700">
+              This is taking longer than expected. Still waiting on a response…
             </div>
           </div>
         )}
