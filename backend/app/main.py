@@ -41,10 +41,12 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
         if detect_crisis(request.message):
             response = ChatResponse(type="crisis", message=CRISIS_RESPONSE_MESSAGE, risk_level="high", end_session=True)
             add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type,  response.risk_level)
+            set_session_locked(request.session_id, True)
             return response
         if detect_boundary(request.message):
             response = ChatResponse(type="boundary", message=BOUNDARY_RESPONSE_MESSAGE, risk_level="medium", end_session=False)
             add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type, response.risk_level)
+            # TODO: set_session_locked(request.session_id, True) ?
             return response
         # TODO: intent
 

@@ -5,7 +5,13 @@ import { TakeoverScreen } from "./components/Takeover";
 type DeleteStatus = "idle" | "confirming" | "loading" | "error";
 
 function App() {
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId] = useState(() => {
+    const existing = localStorage.getItem('wellbeing_session_id');
+    if (existing) return existing;
+    const newId = crypto.randomUUID();
+    localStorage.setItem('wellbeing_session_id', newId);
+    return newId;
+  });
   const [inputText, setInputText] = useState("");
   const [deleteStatus, setDeleteStatus] = useState<DeleteStatus>("idle");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
