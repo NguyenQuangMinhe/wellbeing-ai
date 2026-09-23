@@ -37,10 +37,10 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
                 end_session=True,
             )
 
-        # First tier
+        # First tier, is risk_level and crisis can be considered only label
         if detect_crisis(request.message):
             response = ChatResponse(type="crisis", message=CRISIS_RESPONSE_MESSAGE, risk_level="high", end_session=True)
-            add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type,  response.risk_level) # hasnt handled risks yet (low default) + stub response type
+            add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type,  response.risk_level)
             return response
         if detect_boundary(request.message):
             response = ChatResponse(type="boundary", message=BOUNDARY_RESPONSE_MESSAGE, risk_level="medium", end_session=False)

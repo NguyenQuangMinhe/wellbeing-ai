@@ -35,6 +35,7 @@ function App() {
   }, [messages, isLoading]);
 
   useEffect(() => {
+    //May need to send to backend instead
     if (!isLoading) {
       setIsTimedOut(false);
       return;
@@ -57,30 +58,6 @@ function App() {
     } catch {
       setDeleteStatus("error");
     }
-  }
-
-  if (takeoverActive) {
-    const heading = crisisTriggered
-      ? "You deserve support right now"
-      : "Important notice";
-    const body = crisisTriggered ? crisisMessage : boundaryMessage;
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-white p-2">
-        {/* Takeover screen */}
-        <div className="max-w-md text-center text-medium p-2">
-          <h2 className="text-lg font-semibold text-gray-900">{heading}</h2>
-          {body && (
-            <p className="mt-3 whitespace-pre-line text-gray-700">{body}</p>
-          )}
-          <a
-            href="tel:988"
-            className="mt-4 inline-block text-blue-600 underline hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-          >
-            Call or text 988
-          </a>
-        </div>
-      </div>
-    );
   }
 
   return (

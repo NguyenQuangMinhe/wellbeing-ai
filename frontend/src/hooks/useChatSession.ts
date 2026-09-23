@@ -27,19 +27,21 @@ export function useChatSession(sessionId: string) {
         session_id: sessionId,
         message: text,
       });
-
-      if (data.type === "crisis") {
-        setCrisisTriggered(true);
-        setCrisisMessage(data.message);
-      } else if (data.type === "boundary") {
-        setBoundaryTriggered(true);
-        setBoundaryMessage(data.message);
+      console.log("data message:", data.message);
+      if (data.risk_level === "high") {
+        if (data.type === "crisis") {
+          setCrisisTriggered(true);
+          setCrisisMessage(data.message);
+        } else if (data.type === "boundary") {
+          setBoundaryTriggered(true);
+          setBoundaryMessage(data.message);
+        }
       } else {
-        setMessages((prev) => [
-          ...prev,
-          { role: "system", text: data.message, risk: data.risk_level },
-        ]);
-      }
+          setMessages((prev) => [
+            ...prev,
+            { role: "system", text: data.message, risk: data.risk_level },
+          ]);
+        }
 
       if (data.end_session) {
         setCrisisTriggered(true);
