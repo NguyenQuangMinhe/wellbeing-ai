@@ -18,6 +18,13 @@ app.add_middleware(
     allow_methods=["POST", "DELETE", "GET"],
     allow_headers=["*"],
 )
+
+def end_response(session_id: str, user_message: str, response: ChatResponse) -> ChatResponse:
+    add_entry(session_id, user_message, response.message, response.type, response.risk_level)
+    if response.end_session:
+        set_session_locked(session_id, True)
+    return response
+
 @app.on_event("startup")
 async def startup():
     init_db()
@@ -27,24 +34,22 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     try: 
         # Session lock check first
         if is_session_locked(request.session_id):
-            return ChatResponse(
+            response = ChatResponse(
                 type="crisis",
                 message=CRISIS_RESPONSE_MESSAGE,
                 risk_level="high",
                 end_session=True,
             )
+            add_entry(request.session_id, request.message, response.message, response.type, response.risk_level)
+            return response
 
         # First tier, is risk_level and crisis can be considered only label
         if detect_crisis(request.message):
             response = ChatResponse(type="crisis", message=CRISIS_RESPONSE_MESSAGE, risk_level="high", end_session=True)
-            add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type,  response.risk_level)
-            set_session_locked(request.session_id, True)
-            return response
+            return end_response(request.session_id, request.message, response)
         if detect_boundary(request.message):
             response = ChatResponse(type="boundary", message=BOUNDARY_RESPONSE_MESSAGE, risk_level="medium", end_session=False)
-            add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type, response.risk_level)
-            # TODO: set_session_locked(request.session_id, True) ?
-            return response
+            return end_response(request.session_id, request.message, response)
         # TODO: intent
 
         # Prompt from session historuy + new message
@@ -59,9 +64,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             risk_level="low",
             end_session=False,
         )
-
-        add_entry(request.session_id, request.message, response.message, response.type, response.risk_level) # hasnt handled risks yet (low default) + stub response type
-        return response
+        return end_response(request.session_id, request.message, response) # hasnt handled risks yet (low default) + stub response type
     except Exception:
         logger.exception("Unhandled error processing message for session %s", request.session_id)
         return ChatResponse(
