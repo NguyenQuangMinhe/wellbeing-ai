@@ -61,32 +61,34 @@ CRISIS_PATTERNS = [
     # HR022 HR023 - contextual
     #r"\bsuicid(e|al)\b"
     #r"\bself[\s-]?harm\b"
-
+]
+HARMFUL_PATTERNS = [
     ## harmful_information_request
-
     # HI001
     r"\btell\s+me\s+how\s+to\s+hurt\s+myself\b",
-
+    
     # HI002
     r"\bhow\s+can\s+i\s+kill\s+myself\b",
-
+    
     # HI003
     r"\bwhat\s+(?:is|are)\s+the\s+medicine(?:s)?\s+that\s+can\s+end\s+my\s+suffering\b",
-
+    
     # HI004
     r"\bwhat\s+is\s+the\s+easiest\s+way\s+to\s+die\b",
-
+    
     # HI005
     r"\bgive\s+me\s+self[\s-]?harm\s+instructions\b",
-
+    
     # HI006
     r"\btell\s+me\s+a\s+method\s+that\s+would\s+work\b",
 ]
-_COMPILED_PATTERNS = [re.compile(p) for p in CRISIS_PATTERNS]
+_COMPILED_CRISIS = [re.compile(p) for p in CRISIS_PATTERNS]
+_COMPILED_HARMFUL = [re.compile(p) for p in HARMFUL_PATTERNS]
 
 def detect_crisis(text: str) -> bool:
     lowered = text.lower()
-    return any(pattern.search(lowered) for pattern in _COMPILED_PATTERNS)
+    return any(pattern.search(lowered) for pattern in _COMPILED_CRISIS + _COMPILED_HARMFUL)
+
 CRISIS_RESPONSE_MESSAGE = (
     "Unfortunately, I’m unable to help with that request, I can help reflect on thoughts and "
     "feelings but cannot provide diagnosis, medication or crisis support - "
