@@ -185,8 +185,10 @@ function App() {
       {/* Chat area */}
       <div className="flex flex-1 flex-col overflow-y-auto p-4">
         {messages.length === 0 && !isLoading && (
-          <div className="m-auto text-center text-sm text-gray-400">
-            Start the conversation whenever you're ready.
+          <div className="m-auto whitespace-pre-line text-center text-sm text-gray-400 font-bold">
+            {"\nThroughout our conversation I am unable to provide any medication advice,\n" +
+              "diagnosis or crisis response. I am able to provide assistance to feelings,\n" +
+              "thoughts and actions."}
           </div>
         )}
 
