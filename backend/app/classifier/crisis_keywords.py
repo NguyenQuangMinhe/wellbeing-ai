@@ -14,8 +14,9 @@ def detect_crisis(text: str) -> bool:
     lowered = text.lower()
     return any(pattern.search(lowered) for pattern in _COMPILED_PATTERNS)
 CRISIS_RESPONSE_MESSAGE = (
-    "It sounds like you might be in crisis. I'm not able to help with that here — "
-    "please reach out to one of these services right away:\n\n"
+    "Unfortunately, I’m unable to help with that request, I can help reflect on thoughts and "
+    "feelings but cannot provide diagnosis, medication or crisis support - "
+    "if needed, you can reach out to one of these services right away:\n\n"
     "Emergency — 000\n"
     "Lifeline Australia — 13 11 14\n"
     "Beyond Blue — 1300 22 4636"

@@ -29,10 +29,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
         if is_session_locked(request.session_id):
             return ChatResponse(
                 type="crisis",
-                message=(
-                    "This session has been ended for your safety. Please reach out "
-                    "to a crisis service directly, or start a new conversation."
-                ),
+                message=CRISIS_RESPONSE_MESSAGE,
                 risk_level="high",
                 end_session=True,
             )

@@ -217,8 +217,8 @@ function App() {
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
               <span className="ml-2 whitespace-pre-line">
                 {"\nThroughout our conversation I am unable to provide any medication advice,\n" +
-                "diagnosis or crisis response. I am able to provide assistance to feelings,\n" +
-                "thoughts and actions."}
+                  "diagnosis or crisis response. I am able to provide assistance to feelings,\n" +
+                  "thoughts and actions."}
               </span>
             </div>
           </div>
