@@ -2,14 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { useChatSession } from "./hooks/useChatSession";
 import { TakeoverScreen } from "./components/Takeover";
 
-type DeleteStatus = "idle" | "confirming" | "loading" | "error";
+type DeleteStatus = "idle" | "confirming" | "loading" | "error" | "success";
 
 function App() {
   const [sessionId] = useState(() => {
-    const existing = localStorage.getItem('wellbeing_session_id');
+    const existing = localStorage.getItem("wellbeing_session_id");
     if (existing) return existing;
     const newId = crypto.randomUUID();
-    localStorage.setItem('wellbeing_session_id', newId);
+    localStorage.setItem("wellbeing_session_id", newId);
     return newId;
   });
   const [inputText, setInputText] = useState("");
@@ -61,7 +61,7 @@ function App() {
     setDeleteStatus("loading");
     try {
       await clear();
-      setDeleteStatus("idle");
+      setDeleteStatus("success");
     } catch {
       setDeleteStatus("error");
     }
@@ -70,7 +70,13 @@ function App() {
     return (
       <TakeoverScreen
         kind={crisisTriggered ? "crisis" : "boundary"}
-        message={crisisTriggered ? crisisMessage : boundaryTriggered ? boundaryMessage : null}
+        message={
+          crisisTriggered
+            ? crisisMessage
+            : boundaryTriggered
+              ? boundaryMessage
+              : null
+        }
       />
     );
   }
@@ -133,31 +139,44 @@ function App() {
             {/* Confirmation dialog */}
             <p className="flex items-center justify-center p-2 text-center text-sm text-gray-800">
               {deleteStatus === "error"
-                ? "Sorry, an Error has occured."
-                : "Delete conversation history permanently?"}
+                ? "Sorry, an error has occurred."
+                : deleteStatus === "success"
+                  ? "Conversation history deleted."
+                  : "Delete conversation history permanently?"}
             </p>
             <div className="mt-3 flex items-center justify-center gap-2">
-              {/* Cancel button */}
-              <button
-                type="button"
-                onClick={() => setDeleteStatus("idle")}
-                disabled={deleteStatus === "loading"}
-                className="rounded p-2 text-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                disabled={deleteStatus === "loading"}
-                className="rounded bg-red-500 p-2 text-sm text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50"
-              >
-                {deleteStatus === "loading"
-                  ? "Deleting…"
-                  : deleteStatus === "error"
-                    ? "Try again"
-                    : "Delete"}
-              </button>
+              {deleteStatus === "success" ? (
+                <button
+                  type="button"
+                  onClick={() => setDeleteStatus("idle")}
+                  className="rounded p-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  Done
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteStatus("idle")}
+                    disabled={deleteStatus === "loading"}
+                    className="rounded p-2 text-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    disabled={deleteStatus === "loading"}
+                    className="rounded bg-red-500 p-2 text-sm text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50"
+                  >
+                    {deleteStatus === "loading"
+                      ? "Deleting…"
+                      : deleteStatus === "error"
+                        ? "Try again"
+                        : "Delete"}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
