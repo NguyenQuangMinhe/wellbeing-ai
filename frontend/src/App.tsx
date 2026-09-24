@@ -212,10 +212,14 @@ function App() {
         {isLoading && !isTimedOut && (
           <div className="mb-2 flex justify-start">
             <div className="flex items-center gap-1.5 rounded-md bg-gray-100 p-2 text-sm text-gray-400">
-              <span className="sr-only">Ai is thinking, please wait</span>
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
+              <span className="ml-2 whitespace-pre-line">
+                {"\nThroughout our conversation I am unable to provide any medication advice,\n" +
+                "diagnosis or crisis response. I am able to provide assistance to feelings,\n" +
+                "thoughts and actions."}
+              </span>
             </div>
           </div>
         )}
