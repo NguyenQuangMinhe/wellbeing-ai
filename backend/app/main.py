@@ -1,3 +1,5 @@
+import asyncio
+
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
 from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
 from app.storage.history_store import add_entry, delete_history, init_db, set_session_locked, is_session_locked
@@ -31,6 +33,8 @@ async def startup():
 
 @app.post("/api/message", response_model=ChatResponse)
 async def handle_message(request: ChatRequest) -> ChatResponse:
+    # Delay testing
+    await asyncio.sleep(10)  
     try: 
         # Session lock check first
         if is_session_locked(request.session_id):
