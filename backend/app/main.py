@@ -2,7 +2,7 @@ import asyncio
 
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
 from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
-from app.storage.history_store import add_entry, delete_history, init_db, set_session_locked, is_session_locked
+from app.storage.history_store import add_entry, delete_history, get_history, init_db, set_session_locked, is_session_locked
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import ChatRequest, ChatResponse
@@ -82,6 +82,10 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
 async def clear_history(session_id: str):
     deleted = delete_history(session_id)
     return {"deleted": deleted}
+
+@app.get("/api/history/{session_id}")
+async def read_history(session_id: str):
+    return get_history(session_id)
 
 @app.get("/health")
 async def health():

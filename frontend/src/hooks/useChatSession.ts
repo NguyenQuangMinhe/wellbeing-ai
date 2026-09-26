@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { sendMessage, clearHistory } from "../api/client";
+import { useState, useEffect } from "react";
+import { sendMessage, clearHistory, getHistory } from "../api/client";
 import type { ChatResponse } from "../types/chat";
 
 type Message = {
@@ -16,6 +16,22 @@ export function useChatSession(sessionId: string) {
   const [boundaryTriggered, setBoundaryTriggered] = useState(false);
   const [boundaryMessage, setBoundaryMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const history = await getHistory(sessionId);
+        const restored: Message[] = history.flatMap((entry) => [
+          { role: "user" as const, text: entry.user_message },
+          { role: "system" as const, text: entry.system_message, risk: entry.risk_level },
+        ]);
+        setMessages(restored);
+      } catch {
+        // no history yet, or backend unreachable — start with an empty chat, not an error
+      }
+    }
+    loadHistory();
+  }, [sessionId]);
 
   async function send(text: string) {
     setMessages((prev) => [...prev, { role: "user", text }]);
