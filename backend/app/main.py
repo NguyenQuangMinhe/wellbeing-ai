@@ -34,7 +34,7 @@ async def startup():
 @app.post("/api/message", response_model=ChatResponse)
 async def handle_message(request: ChatRequest) -> ChatResponse:
     # Delay testing
-    await asyncio.sleep(10)  
+    #await asyncio.sleep(10)  
     try: 
         # Session lock check first
         if is_session_locked(request.session_id):

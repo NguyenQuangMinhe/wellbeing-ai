@@ -18,6 +18,8 @@ export async function sendMessage(payload: ChatRequest): Promise<ChatResponse> {
 export async function clearHistory(
   sessionId: string,
 ): Promise<{ deleted: number }> {
+  //await new Promise((r) => setTimeout(r, 15000)); 
+  //throw new Error('Simulated failure'); 
   const response = await fetch(`${API_BASE_URL}/api/history/${sessionId}`, {
     method: "DELETE",
   });

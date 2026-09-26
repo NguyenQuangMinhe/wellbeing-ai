@@ -55,17 +55,13 @@ export function useChatSession(sessionId: string) {
     }
   }
   async function clear() {
-    try {
-      await clearHistory(sessionId);
-      setMessages([]);
-      setCrisisTriggered(false);
-      setCrisisMessage(null);
-      setBoundaryTriggered(false);
-      setBoundaryMessage(null);
-      setError(null);
-    } catch (err) {
-      setError("Could not clear history. Please try again.");
-    }
+    await clearHistory(sessionId);
+    setMessages([]);
+    setCrisisTriggered(false);
+    setCrisisMessage(null);
+    setBoundaryTriggered(false);
+    setBoundaryMessage(null);
+    setError(null);
   }
 
   return {

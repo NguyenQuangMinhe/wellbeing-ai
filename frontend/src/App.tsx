@@ -219,12 +219,12 @@ function App() {
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
               </div>
-              
-                {messages.length === 1 && (
-                  <div className="ml-2 whitespace-pre-line">
-                    Your first response may take a little longer...
-                  </div>
-                )}
+
+              {messages.length === 1 && (
+                <div className="ml-2 whitespace-pre-line">
+                  Your first response may take a little longer...
+                </div>
+              )}
             </div>
           </div>
         )}
