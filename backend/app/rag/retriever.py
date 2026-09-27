@@ -2,6 +2,9 @@ from pathlib import Path
 from app.rag.ingest import embedding_model, get_collection
 from app.storage.history_store import add_entry, init_db, get_history, delete_history
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 # k=3 chosen as default
 # knowledgebase holds 18 chunks total so a smaller assigned k avoids forming assembly prompt with marginally relevant material.
@@ -101,7 +104,10 @@ def assemble_prompt(session_id: str, user_message: str, risk_level: str) -> str:
 
     sections.append(f"User: {user_message}")
 
-    return "\n\n".join(sections)
+    final_prompt = "\n\n".join(sections)
+    logger.debug("Assembled prompt for session %s:\n%s", session_id, final_prompt)
+
+    return final_prompt
 
 
 
