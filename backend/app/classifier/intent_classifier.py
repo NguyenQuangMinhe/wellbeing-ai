@@ -16,7 +16,7 @@ def classify_intent(message: str) -> dict:
 
     #check for "safe"/"unsafe" response in LG response
     if "unsafe" in response_text:
-        risk_level = "moderate"
+        risk_level = "medium"
     else:
         risk_level = "low"
 

@@ -73,9 +73,10 @@ def format_history_for_assembled_prompt(history: list[dict]) -> str:
 
 
 MODERATE_RISK_INSTRUCTION = (
-    "The user's message has been classified as moderate risk. Naturally "
-    "and gently weave in a suggestion to seek professional support "
-    "within your response, without making it the sole focus of your reply."
+    "The user's message has been classified as moderate risk. Naturally and gently weave in a general suggestion to seek professional "
+    "support, without making it the sole focus of your reply. Do NOT invent, name, or provide specific crisis hotlines, phone numbers, "
+    "text services, or organisation names of any kind - the application handles crisis resources separately and exclusively. Refer only to "
+    "'a professional' or 'professional support' in general terms."
 )
 
 def assemble_prompt(session_id: str, user_message: str, risk_level: str) -> str:
@@ -99,7 +100,7 @@ def assemble_prompt(session_id: str, user_message: str, risk_level: str) -> str:
         sections.append("Conversation so far:")
         sections.append(history_section)
 
-    if risk_level == "moderate":
+    if risk_level == "medium":
         sections.append(MODERATE_RISK_INSTRUCTION)
 
     sections.append(f"User: {user_message}")
@@ -143,7 +144,7 @@ if __name__ == "__main__":
     print(f"Moderate-risk instruction present: {MODERATE_RISK_INSTRUCTION in low_risk_prompt}")
 
     print("\n-Testing assemble_prompt() at moderate risk-\n")
-    moderate_risk_prompt = assemble_prompt(test_session_id, "I'm stressed about an upcoming deadline", "moderate")
+    moderate_risk_prompt = assemble_prompt(test_session_id, "I'm stressed about an upcoming deadline", "medium")
     print(f"Prompt length: {len(moderate_risk_prompt)} characters")
     print(f"Moderate-risk instruction present: {MODERATE_RISK_INSTRUCTION in moderate_risk_prompt}")
 
