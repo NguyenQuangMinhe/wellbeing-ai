@@ -3,13 +3,17 @@ import asyncio
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
 from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
 from app.storage.history_store import add_entry, delete_history, get_history, init_db, set_session_locked, is_session_locked
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.models.schemas import ChatRequest, ChatResponse
-from app.llm.prompt_builder import build_prompt
-
 import logging
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.control_plane import handle_message
+from app.models.schemas import ChatRequest, ChatResponse
+from app.storage.history_store import delete_history, init_db
+
+# Makes the stage-level INFO logs from control_plane.py visible in terminal
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -69,14 +73,21 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             end_session=False,
         )
         return end_response(request.session_id, request.message, response) # hasnt handled risks yet (low default) + stub response type
+
+# Named post_message so it doesn't shadow the handle_message imported above.
+@app.post("/api/message", response_model=ChatResponse)
+async def post_message(request: ChatRequest) -> ChatResponse:
+    try:
+        return await handle_message(request)
     except Exception:
         logger.exception("Unhandled error processing message for session %s", request.session_id)
         return ChatResponse(
             type="error",
-            message="Something went wrong on our end. Please try again in a moment.",
+            message="We couldn’t generate a response right now. Please try again later, sorry for the inconvenience.",
             risk_level="low",
             end_session=False,
         )
+
 
 @app.delete("/api/history/{session_id}")
 async def clear_history(session_id: str):
