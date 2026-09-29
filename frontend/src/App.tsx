@@ -22,7 +22,7 @@ function App() {
   const {
     messages,
     send,
-    clear,
+    clearHistoryAndState,
     isLoading,
     crisisTriggered,
     crisisMessage,
@@ -60,7 +60,7 @@ function App() {
   async function handleConfirmDelete() {
     setDeleteStatus("loading");
     try {
-      await clear();
+      await clearHistoryAndState();
       setDeleteStatus("success");
     } catch {
       setDeleteStatus("error");

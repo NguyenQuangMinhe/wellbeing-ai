@@ -47,7 +47,6 @@ export function useChatSession(sessionId: string) {
         session_id: sessionId,
         message: text,
       });
-      console.log("data message:", data.message);
       if (data.risk_level === "high") {
         if (data.type === "crisis") {
           setCrisisTriggered(true);
@@ -74,7 +73,7 @@ export function useChatSession(sessionId: string) {
       setIsLoading(false);
     }
   }
-  async function clear() {
+  async function clearHistoryAndState() {
     await clearHistory(sessionId);
     setMessages([]);
     setCrisisTriggered(false);
@@ -87,7 +86,7 @@ export function useChatSession(sessionId: string) {
   return {
     messages,
     send,
-    clear,
+    clearHistoryAndState,
     isLoading,
     crisisTriggered,
     crisisMessage,

@@ -11,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.control_plane import handle_message
 from app.models.schemas import ChatRequest, ChatResponse
-from app.storage.history_store import delete_history, init_db
 
 # Makes the stage-level INFO logs from control_plane.py visible in terminal
 logging.basicConfig(level=logging.INFO)
