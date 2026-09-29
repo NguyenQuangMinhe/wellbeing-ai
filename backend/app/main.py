@@ -5,6 +5,7 @@ from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE
 from app.storage.history_store import add_entry, delete_history, get_history, init_db, set_session_locked, is_session_locked
 import logging
 
+from app.llm.prompt_builder import build_prompt
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -73,6 +74,16 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             end_session=False,
         )
         return end_response(request.session_id, request.message, response) # hasnt handled risks yet (low default) + stub response type
+    except Exception:
+        logger.exception("Unhandled error processing message for session %s", request.session_id)
+        response = ChatResponse(
+            type="error",
+            message="We couldn’t generate a response right now. Please try again later, sorry for the inconvenience.",
+            risk_level="low",
+            end_session=False,
+        )
+        add_entry(request.session_id, request.message, response.message, response.type, response.risk_level)
+        return response
 
 # Named post_message so it doesn't shadow the handle_message imported above.
 @app.post("/api/message", response_model=ChatResponse)
