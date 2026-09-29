@@ -1,13 +1,14 @@
-from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
-from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
-from app.storage.history_store import add_entry, delete_history, init_db, set_session_locked, is_session_locked
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.models.schemas import ChatRequest, ChatResponse
-from app.llm.prompt_builder import build_prompt
-
 import logging
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.control_plane import handle_message
+from app.models.schemas import ChatRequest, ChatResponse
+from app.storage.history_store import delete_history, init_db
+
+# Makes the stage-level INFO logs from control_plane.py visible in terminal
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -18,64 +19,33 @@ app.add_middleware(
     allow_methods=["POST", "DELETE", "GET"],
     allow_headers=["*"],
 )
+
+
 @app.on_event("startup")
 async def startup():
     init_db()
 
+
+# Named post_message so it doesn't shadow the handle_message imported above.
 @app.post("/api/message", response_model=ChatResponse)
-async def handle_message(request: ChatRequest) -> ChatResponse:
-    try: 
-        # Session lock check first
-        if is_session_locked(request.session_id):
-            return ChatResponse(
-                type="crisis",
-                message=(
-                    "This session has been ended for your safety. Please reach out "
-                    "to a crisis service directly, or start a new conversation."
-                ),
-                risk_level="high",
-                end_session=True,
-            )
-
-        # First tier
-        if detect_crisis(request.message):
-            response = ChatResponse(type="crisis", message=CRISIS_RESPONSE_MESSAGE, risk_level="high", end_session=True)
-            add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type,  response.risk_level) # hasnt handled risks yet (low default) + stub response type
-            return response
-        if detect_boundary(request.message):
-            response = ChatResponse(type="boundary", message=BOUNDARY_RESPONSE_MESSAGE, risk_level="medium", end_session=False)
-            add_entry(request.session_id, request.message,f"(stub) I heard: {request.message}", response.type, response.risk_level)
-            return response
-        # TODO: intent
-
-        # Prompt from session historuy + new message
-        # TODO: not yet sent to LLM
-        prompt = build_prompt(request.session_id, request.message)
-
-        
-        # Stub - classifier/RAG/LLM not wired up yet
-        response = ChatResponse(
-            type="normal",
-            message=f"(stub, prompt assembled with {len(prompt)} chars) I heard: {request.message}",
-            risk_level="low",
-            end_session=False,
-        )
-
-        add_entry(request.session_id, request.message, response.message, response.type, response.risk_level) # hasnt handled risks yet (low default) + stub response type
-        return response
+async def post_message(request: ChatRequest) -> ChatResponse:
+    try:
+        return await handle_message(request)
     except Exception:
         logger.exception("Unhandled error processing message for session %s", request.session_id)
         return ChatResponse(
             type="error",
-            message="Something went wrong on our end. Please try again in a moment.",
+            message="We couldn’t generate a response right now. Please try again later, sorry for the inconvenience.",
             risk_level="low",
             end_session=False,
         )
+
 
 @app.delete("/api/history/{session_id}")
 async def clear_history(session_id: str):
     deleted = delete_history(session_id)
     return {"deleted": deleted}
+
 
 @app.get("/health")
 async def health():
