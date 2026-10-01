@@ -7,7 +7,7 @@ import * as client from "../src/api/client";
 describe("Input guards", () => {
   beforeEach(() => {
     vi.spyOn(client, "getHistory").mockResolvedValue([]);
-    vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false});
+    vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false });
   });
 
   it("blocks submission of an empty or whitespace-only message", async () => {
@@ -25,7 +25,9 @@ describe("Input guards", () => {
   });
 
   it("passes a 500+ word message through intact, unmodified", async () => {
-    const longMessage = Array.from({ length: 550 }, (_, i) => `word${i}`).join(" ");
+    const longMessage = Array.from({ length: 550 }, (_, i) => `word${i}`).join(
+      " ",
+    );
     vi.spyOn(client, "sendMessage").mockResolvedValue({
       type: "normal",
       message: "ok",
@@ -43,7 +45,7 @@ describe("Input guards", () => {
 
     await waitFor(() => {
       expect(client.sendMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ message: longMessage })
+        expect.objectContaining({ message: longMessage }),
       );
     });
   });
