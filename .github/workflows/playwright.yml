@@ -31,4 +31,4 @@ jobs:
         run: pnpm --filter frontend exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: pnpm --filter frontend test:e2e
+        run: pnpm --filter frontend pnpm dev:e2e
