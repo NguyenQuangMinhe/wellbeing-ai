@@ -7,4 +7,4 @@ def generate_response(prompt: str) -> str:
     Returns: (str) The generated response from the model.
     """
     response = generation_llm.complete(prompt)
-    return response
+    return str(response)

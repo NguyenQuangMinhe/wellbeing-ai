@@ -86,10 +86,6 @@ async def test_crisis_writes_history_and_locks_session():
     assert follow_up.risk_level == "high"
     assert follow_up.end_session is True
 
-
-@pytest.mark.xfail(
-    reason="Locked-session early return does not call add_entry()"
-)
 @pytest.mark.asyncio
 async def test_locked_session_follow_up_is_recorded_in_history():
     
