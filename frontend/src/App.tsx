@@ -95,6 +95,7 @@ function App() {
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
           aria-haspopup="menu"
+          aria-label="open menu"
           aria-expanded={menuOpen}
           className="rounded p-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >

@@ -28,9 +28,19 @@ export async function clearHistory(
     throw new Error(`Failed to clear history: ${response.status}`);
   return response.json();
 }
+
 export async function getHistory(sessionId: string): Promise<HistoryEntry[]> {
   const response = await fetch(`${API_BASE_URL}/api/history/${sessionId}`);
   if (!response.ok)
     throw new Error(`Failed to load history: ${response.status}`);
+  return response.json();
+}
+
+export async function getSessionStatus(
+  sessionId: string,
+): Promise<{ locked: boolean}> {
+  const response = await fetch(`${API_BASE_URL}/api/session/${sessionId}/status`);
+  if (!response.ok)
+    throw new Error(`Failed to get session status: ${response.status}`);
   return response.json();
 }

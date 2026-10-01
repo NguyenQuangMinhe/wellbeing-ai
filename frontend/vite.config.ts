@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
+    globals: true,
+    setupFiles: './vitest.setup.ts',
     coverage: { reporter: ['text', 'html'] }, 
   },
 })

@@ -108,6 +108,11 @@ async def clear_history(session_id: str):
 async def read_history(session_id: str):
     return get_history(session_id)
 
+@app.get("/api/session/{session_id}/status")
+async def get_session_status(session_id: str):
+    locked = is_session_locked(session_id)
+    return {"locked": locked}
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
