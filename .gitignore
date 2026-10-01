@@ -35,4 +35,7 @@ dist-ssr
 .env.local
 
 # Databse
-backend/data/*.db
+backend/data/
+# Python bytecode
+__pycache__/
+*.pyc

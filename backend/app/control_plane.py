@@ -1,5 +1,6 @@
 import logging
 import asyncio
+from urllib import response
 import uuid
 
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
@@ -28,7 +29,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     logger.info("Stage: session_lock_check | session=%s", session_id)
     if is_session_locked(session_id):
         logger.info("Session %s is locked - terminating without processing", session_id)
-        return ChatResponse(
+        response = ChatResponse(
             type="crisis",
             message = (
                 "This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation"
@@ -36,6 +37,8 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             risk_level = "high",
             end_session = True
         )
+        add_entry(session_id, user_message, response.message, response.type, response.risk_level)
+        return response
 
     #Stage 1.1: Crisis keyword check 
     logger.info("Stage: crisis_keywords | session=%s", session_id)
@@ -101,9 +104,9 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     return response
 
 
-    #----TESTING----
-    #----TESTING----
-    #----TESTING----
+#----TESTING----
+#----TESTING----
+#----TESTING----
 
 async def test_normal_message():
     init_db()
