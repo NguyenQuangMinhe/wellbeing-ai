@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal
 
 
 class ChatRequest(BaseModel):
     session_id: str
-    message: str
+    message: str = Field(..., min_length=1)
 
 
 class ChatResponse(BaseModel):

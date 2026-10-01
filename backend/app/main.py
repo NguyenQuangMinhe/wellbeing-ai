@@ -8,9 +8,17 @@ import logging
 from app.llm.prompt_builder import build_prompt
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
+from pydantic import BaseModel, Field
+import re
 
 from app.control_plane import handle_message
 from app.models.schemas import ChatRequest, ChatResponse
+UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
+def validate_session_id(session_id: str) -> str:
+    if not UUID_PATTERN.match(session_id):
+        raise HTTPException(status_code=400, detail="Invalid session_id format. Must be a valid UUID.")
+    return session_id
 
 # Makes the stage-level INFO logs from control_plane.py visible in terminal
 logging.basicConfig(level=logging.INFO)
@@ -101,15 +109,18 @@ async def post_message(request: ChatRequest) -> ChatResponse:
 
 @app.delete("/api/history/{session_id}")
 async def clear_history(session_id: str):
+    validate_session_id(session_id)
     deleted = delete_history(session_id)
     return {"deleted": deleted}
 
 @app.get("/api/history/{session_id}")
 async def read_history(session_id: str):
+    validate_session_id(session_id)
     return get_history(session_id)
 
 @app.get("/api/session/{session_id}/status")
 async def get_session_status(session_id: str):
+    validate_session_id(session_id)
     locked = is_session_locked(session_id)
     return {"locked": locked}
 

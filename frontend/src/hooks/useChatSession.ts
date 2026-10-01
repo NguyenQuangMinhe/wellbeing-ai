@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { sendMessage, clearHistory, getHistory, getSessionStatus } from "../api/client";
+import {
+  sendMessage,
+  clearHistory,
+  getHistory,
+  getSessionStatus,
+} from "../api/client";
 import type { ChatResponse } from "../types/chat";
 
 type Message = {
@@ -33,10 +38,11 @@ export function useChatSession(sessionId: string) {
       } catch {
         // no history yet, or backend unreachable — start with an empty chat, not an error
       }
-      try{
+      try {
         const status = await getSessionStatus(sessionId);
         if (status.locked) {
-          setCrisisTriggered(true);
+          //setCrisisTriggered(true);
+          setIsLoading(true);
           //setCrisisMessage(status.message ??"This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation.");
         }
       } catch {
@@ -85,6 +91,7 @@ export function useChatSession(sessionId: string) {
   async function clearHistoryAndState() {
     await clearHistory(sessionId);
     setMessages([]);
+    setIsLoading(false);
     setCrisisTriggered(false);
     setCrisisMessage(null);
     setBoundaryTriggered(false);

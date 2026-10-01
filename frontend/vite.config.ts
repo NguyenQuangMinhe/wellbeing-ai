@@ -1,13 +1,13 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: './vitest.setup.ts',
-    coverage: { reporter: ['text', 'html'] }, 
+    setupFiles: "./vitest.setup.ts",
+    coverage: { reporter: ["text", "html"] },
   },
-})
+});
