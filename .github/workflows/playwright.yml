@@ -25,10 +25,10 @@ jobs:
         run: pnpm install --frozen-lockfile
       
       - name: Create frontend env file
-        run: echo "VITE_API_BASE_URL=http://localhost:5173" > frontend/.env.local
+        run: echo "VITE_API_BASE_URL=http://localhost:8000" > frontend/.env.local
 
       - name: Install Playwright browsers
         run: pnpm --filter frontend exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: pnpm --filter frontend pnpm dev:e2e
+        run: pnpm --filter frontend dev:e2e
