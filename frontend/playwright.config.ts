@@ -30,13 +30,20 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
-    baseURL: 'http://localhost:5173',
+    baseURL: "http://localhost:5173",
   },
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:5173',
+  webServer: [
+  {
+    command: "pnpm dev",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
   },
+  {
+    command: "cd ../backend && uvicorn main:app --host 0.0.0.0 --port 8000",
+    url: "http://localhost:8000",
+    reuseExistingServer: !process.env.CI,
+  },
+],
 
   /* Configure projects for major browsers */
   projects: [
