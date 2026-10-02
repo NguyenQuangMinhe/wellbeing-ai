@@ -34,6 +34,7 @@ async def test_unsafe_text_never_appears_in_response_or_history():
     print(f"message: {response.message}")
 
     assert response.message == GUARDRAIL_FALLBACK_MESSAGE
+    assert response.type == "error"
     assert UNSAFE_MARKER not in response.message
 
     history = get_history(session_id)
@@ -126,6 +127,81 @@ async def test_generation_model_unavailable_returns_error_variant():
 
     with patch("app.control_plane.generate_response") as mock_generate:
         mock_generate.side_effect = httpx.ConnectError("simulated connection failure")
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
+    assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"
+
+@pytest.mark.asyncio
+async def test_classification_timeout_returns_error_variant():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
+
+    with patch("app.control_plane.classify_intent") as mock_classify:
+        mock_classify.side_effect = httpx.ReadTimeout("simulated timeout")
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == "Response is taking longer than expected, we weren't able to respond"
+    assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"
+
+
+@pytest.mark.asyncio
+async def test_classification_model_unavailable_returns_error_variant():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
+
+    with patch("app.control_plane.classify_intent") as mock_classify:
+        mock_classify.side_effect = httpx.ConnectError("simulated connection failure")
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
+    assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"
+
+
+@pytest.mark.asyncio
+async def test_guardrail_timeout_returns_error_variant():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
+
+    with patch("app.control_plane.check_output") as mock_check:
+        mock_check.side_effect = httpx.ReadTimeout("simulated timeout")
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == "Response is taking longer than expected, we weren't able to respond"
+    assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"
+
+
+@pytest.mark.asyncio
+async def test_guardrail_model_unavailable_returns_error_variant():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
+
+    with patch("app.control_plane.check_output") as mock_check:
+        mock_check.side_effect = httpx.ConnectError("simulated connection failure")
         response = await handle_message(request)
 
     assert response.type == "error"
