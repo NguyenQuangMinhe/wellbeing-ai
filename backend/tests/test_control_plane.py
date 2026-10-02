@@ -2,6 +2,7 @@ import uuid
 from unittest.mock import patch
 
 import pytest
+import httpx
 
 from app.control_plane import handle_message, GUARDRAIL_FALLBACK_MESSAGE
 from app.models.schemas import ChatRequest
@@ -97,3 +98,40 @@ async def test_locked_session_follow_up_is_recorded_in_history():
     await handle_message(ChatRequest(session_id=session_id, message="Actually, I'm fine now"))
 
     assert len(get_history(session_id)) == 2
+
+@pytest.mark.asyncio
+async def test_generation_timeout_returns_error_variant():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
+
+    with patch("app.control_plane.generate_response") as mock_generate:
+        mock_generate.side_effect = httpx.ReadTimeout("simulated timeout")
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == "Response is taking longer than expected, we weren't able to respond"
+    assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"
+
+
+@pytest.mark.asyncio
+async def test_generation_model_unavailable_returns_error_variant():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
+
+    with patch("app.control_plane.generate_response") as mock_generate:
+        mock_generate.side_effect = httpx.ConnectError("simulated connection failure")
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
+    assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"

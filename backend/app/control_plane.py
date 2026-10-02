@@ -3,6 +3,9 @@ import asyncio
 from urllib import response
 import uuid
 
+from click import prompt
+import httpx
+
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
 from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
 from app.classifier.intent_classifier import classify_intent
@@ -80,7 +83,28 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
 
     #Stage 4: Generation
     logger.info("Stage: generation | session=%s", session_id)
-    generated_text = generate_response(prompt)
+    try:
+        generated_text = generate_response(prompt)
+    except httpx.ReadTimeout:
+        logger.error("Stage: generation | session=%s | TIMEOUT - Ollama did not respond in time", session_id)
+        response = ChatResponse(
+            type="error",
+            message="Response is taking longer than expected, we weren't able to respond",
+            risk_level=risk_level,
+            end_session=False,
+        )
+        add_entry(session_id, user_message, response.message, response.type, response.risk_level)
+        return response
+    except httpx.ConnectError:
+        logger.error("Stage: generation | session=%s | MODEL UNAVAILABLE - could not reach Ollama", session_id)
+        response = ChatResponse(
+            type="error",
+            message="We couldn't generate a response right now. Please try again later, sorry for the inconvenience.",
+            risk_level=risk_level,
+            end_session=False,
+        )
+        add_entry(session_id, user_message, response.message, response.type, response.risk_level)
+        return response
 
     #Stage 5: Output Guardrail
     logger.info("Stage: output_guardrail | session=%s", session_id)
