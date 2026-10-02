@@ -175,7 +175,7 @@ function App() {
                     type="button"
                     onClick={handleConfirmDelete}
                     disabled={deleteStatus === "loading"}
-                    className="rounded Bg-red-600  p-2 text-sm text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50"
+                    className="rounded bg-red-600  p-2 text-sm text-white hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50"
                   >
                     {deleteStatus === "loading"
                       ? "Deleting…"
