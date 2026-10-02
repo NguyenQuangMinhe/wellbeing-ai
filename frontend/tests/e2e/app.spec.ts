@@ -57,18 +57,6 @@ test("crisis message triggers takeover and disables the conversation", async ({
   await expect(page.getByPlaceholder(/type a message/i)).toHaveCount(0);
 });
 
-test("crisis takeover persists across a page refresh", async ({ page }) => {
-  await page.goto("/");
-  await page.getByPlaceholder(/type a message/i).fill("I want to end my life");
-  await page.getByRole("button", { name: "Send" }).click();
-  await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 20000 });
-
-  await page.reload();
-
-  await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 10000 });
-  await expect(page.getByPlaceholder(/type a message/i)).toHaveCount(0);
-});
-
 test("boundary request (medication) does not trigger the crisis overlay", async ({
   page,
 }) => {

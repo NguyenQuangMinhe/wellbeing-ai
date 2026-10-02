@@ -23,8 +23,8 @@ export default defineConfig({
     baseURL: "http://localhost:5173",
   },
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:5173',
+    command: "pnpm dev",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
   },
   projects: [
