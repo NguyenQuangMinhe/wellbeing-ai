@@ -14,6 +14,7 @@ from app.llm.generator import generate_response
 from app.rag.retriever import assemble_prompt
 from app.storage.history_store import add_entry, is_session_locked, set_session_locked, init_db
 from app.models.schemas import ChatRequest, ChatResponse
+from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,20 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
+
+    #Stage 1.15: Non-english check
+    logger.info("Stage: non_english_check | session=%s", session_id)
+    if is_non_english(user_message):
+        logger.info("Non-english message detected for session %s - short-circuiting", session_id)
+        response = ChatResponse(
+            type = "error",
+            message = NON_ENGLISH_RESPONSE_MESSAGE,
+            risk_level = "low",
+            end_session = False
+        )
+        add_entry(session_id, user_message, response.message, response.type, response.risk_level)
+        return response
+
 
     #Stage 1.2: Boundary Check
     logger.info("Stage: boundary_check | session=%s", session_id)

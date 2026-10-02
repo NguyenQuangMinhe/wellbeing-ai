@@ -7,6 +7,7 @@ import httpx
 from app.control_plane import handle_message, GUARDRAIL_FALLBACK_MESSAGE
 from app.models.schemas import ChatRequest
 from app.storage.history_store import init_db, get_history, is_session_locked
+from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
 
 UNSAFE_MARKER = "UNSAFE-MARKER-TEXT-12345"
 
@@ -207,6 +208,38 @@ async def test_guardrail_model_unavailable_returns_error_variant():
     assert response.type == "error"
     assert response.message == "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
     assert response.message != ""
+
+    history = get_history(session_id)
+    assert len(history) == 1
+    assert history[0]["response_type"] == "error"
+
+
+@pytest.mark.asyncio
+async def test_short_non_english_message_not_blocked():
+    # Confirms a short non-English message, which is too short for reliable detection, is not blocked and proceeds to generation.
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="im stressed")
+
+    response = await handle_message(request)
+
+    assert response.type != "error" or response.message != NON_ENGLISH_RESPONSE_MESSAGE
+
+
+@pytest.mark.asyncio
+async def test_long_non_english_message_blocked():
+    # confirms a non-english message is identified and returned language limitation error message rather than proceeding to response generation.
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(
+        session_id=session_id,
+        message="Je me sens vraiment stressé à propos d'un délai qui approche au travail",
+    )
+
+    response = await handle_message(request)
+
+    assert response.type == "error"
+    assert response.message == NON_ENGLISH_RESPONSE_MESSAGE
 
     history = get_history(session_id)
     assert len(history) == 1
