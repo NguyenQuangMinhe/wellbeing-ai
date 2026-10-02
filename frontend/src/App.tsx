@@ -41,13 +41,20 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
+  const FIRST_MESSAGE_TIMEOUT = 50000;
+  const SUBSEQUENT_MESSAGE_TIMEOUT = 30000;
   useEffect(() => {
     //May need to send to backend instead
     if (!isLoading) {
       setIsTimedOut(false);
       return;
     }
-    const timer = setTimeout(() => setIsTimedOut(true), 15000);
+    const isFirstMessage = messages.length === 1;
+    const timeoutDuration = isFirstMessage
+      ? FIRST_MESSAGE_TIMEOUT
+      : SUBSEQUENT_MESSAGE_TIMEOUT;
+
+    const timer = setTimeout(() => setIsTimedOut(true), timeoutDuration);
     return () => clearTimeout(timer);
   }, [isLoading]);
 
@@ -168,7 +175,7 @@ function App() {
                     type="button"
                     onClick={handleConfirmDelete}
                     disabled={deleteStatus === "loading"}
-                    className="rounded bg-red-500 p-2 text-sm text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50"
+                    className="rounded Bg-red-600  p-2 text-sm text-white hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50"
                   >
                     {deleteStatus === "loading"
                       ? "Deleting…"
@@ -186,7 +193,7 @@ function App() {
       {/* Chat area */}
       <div className="flex flex-1 flex-col overflow-y-auto p-4">
         {messages.length === 0 && !isLoading && (
-          <div className="m-auto whitespace-pre-line text-center text-sm text-gray-400 font-bold">
+          <div className="m-auto whitespace-pre-line text-center text-sm text-gray-600 font-bold">
             {"\nThroughout our conversation I am unable to provide any medication advice,\n" +
               "diagnosis or crisis response. I am able to provide assistance to feelings,\n" +
               "thoughts and actions."}
@@ -239,7 +246,7 @@ function App() {
         )}
 
         {error && (
-          <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-600">
+          <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-700">
             {error}
           </div>
         )}

@@ -106,7 +106,7 @@ export function TakeoverScreen({
         </ul>
       )}
 
-      <p className="mt-2 text-xs text-gray-400" aria-live="polite">
+      <p className="mt-2 text-xs text-gray-600" aria-live="polite">
         This conversation has been paused. Sending messages is disabled.
       </p>
     </div>
