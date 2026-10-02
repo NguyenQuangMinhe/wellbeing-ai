@@ -6,12 +6,11 @@
 
 ## Changelog
 
-| Version | Date       | Change                                                                                                                                                                             |
-| ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.0     | 21-09-2026 | Initial prompt: emotional-context and concern, ambiguity and listening preferences, supportive tone, short inputs, CBT-informed reflection, clinical limits and safety precedence. |
-| 1.1     | 21-09-2026 | Extend the existing system prompt file with rules 11-16 for session context, updates, conflicts and correction recovery.
-| 1.2     | 02/10/2026 | Added rule 17: English-only scope, documenting the enforcement of language_check.py. Rule is strictly descriptive and does not enforce the functionality itself. See app/classifier/language_check.py for functional implementation.                                                           |
-
+| Version | Date       | Change                                                                                                                                                                                                                               |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1.0     | 21-09-2026 | Initial prompt: emotional-context and concern, ambiguity and listening preferences, supportive tone, short inputs, CBT-informed reflection, clinical limits and safety precedence.                                                   |
+| 1.1     | 21-09-2026 | Extend the existing system prompt file with rules 11-16 for session context, updates, conflicts and correction recovery.                                                                                                             |
+| 1.2     | 02/10/2026 | Added rule 17: English-only scope, documenting the enforcement of language_check.py. Rule is strictly descriptive and does not enforce the functionality itself. See app/classifier/language_check.py for functional implementation. |
 
 ## System prompt
 
