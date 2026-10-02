@@ -19,3 +19,6 @@ def test_long_french_flagged():
 
 def test_long_spanish_flagged():
     assert is_non_english("No puedo dormir bien, estoy muy preocupado por el trabajo") == True
+
+def test_undetectable_input_treated_as_english():
+    assert is_non_english("!!!!!!!!!!!!!!!!!!!!!!") == False
