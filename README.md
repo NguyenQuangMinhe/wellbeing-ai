@@ -70,6 +70,50 @@ cd backend
 venv\Scripts\activate
 uvicorn app.main:app --reload --port 8000
 ```
+
+## LLM Set-Up
+
+### 1. Clone Repo, create branch if necessary 
+```bash
+git clone
+```
+### 2. Download and Install Ollama 
+```bash
+https://ollama.com/download
+```
+
+### 3. Restart VS code window if open 
+
+### 4. Confirm Ollama installation
+```bash
+ollama --version
+```
+
+### 5. Confirm API reachable 
+```bash
+curl http://localhost:11434
+```
+
+### 6. Pull generation model
+```bash
+ollama pull gemma4:e4b
+```
+
+### 7. Pull embedding model
+```bash
+ollama pull nomic-embed-text
+```
+
+### 8. Pull classification model using 
+```bash
+ollama pull llama-guard3:1b
+```
+
+### 9. Verify model are successfully provisioned 
+```bash
+ollama list
+```
+
 ## Project Structure
 wellbeing-ai/
 ├── frontend/ # Vite + React chat UI
