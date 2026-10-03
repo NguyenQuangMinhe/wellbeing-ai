@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from fastapi.testclient import TestClient
 from app.main import app
 from app.storage import history_store
@@ -16,7 +17,7 @@ client = TestClient(app)
 
 
 def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
-    session_id = "integration-test-session"
+    session_id = str(uuid.uuid4())
 
     # 1. Unlocked — session has no prior state
     assert history_store.is_session_locked(session_id) == False

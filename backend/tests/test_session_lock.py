@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from fastapi.testclient import TestClient
 from app.main import app
 from app.storage import history_store
@@ -42,7 +43,7 @@ def test_delete_history_also_clears_lock():
 client = TestClient(app)
 
 def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
-    session_id = "integration-test-session"
+    session_id = str(uuid.uuid4())
 
     # 1. Unlocked initially
     assert history_store.is_session_locked(session_id) == False
@@ -78,7 +79,7 @@ def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
 
 
 def test_boundary_does_not_lock_session():
-    session_id = "boundary-test-session"
+    session_id = str(uuid.uuid4())
 
     response = client.post("/api/message", json={
         "session_id": session_id,
@@ -94,13 +95,17 @@ def test_boundary_does_not_lock_session():
         "session_id": session_id,
         "message": "hello",
     })
+    print(response2.json())
     assert response2.json()["type"] == "normal"
 
 
 def test_different_sessions_isolated():
-    client.post("/api/message", json={"session_id": "locked-one", "message": "I want to end my life"})
+    locked_session_id = str(uuid.uuid4())
+    unrelated_session_id = str(uuid.uuid4())
 
-    response = client.post("/api/message", json={"session_id": "unrelated-session", "message": "hello"})
+    client.post("/api/message", json={"session_id": locked_session_id, "message": "I want to end my life"})
+
+    response = client.post("/api/message", json={"session_id": unrelated_session_id, "message": "hello"})
     data = response.json()
     assert data["type"] == "normal"
-    assert history_store.is_session_locked("unrelated-session") == False
+    assert history_store.is_session_locked(unrelated_session_id) == False

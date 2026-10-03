@@ -1,5 +1,6 @@
 import pytest
 from app.storage import history_store
+from app.storage.history_store import add_entry
 
 
 @pytest.fixture(autouse=True)
@@ -93,3 +94,7 @@ def test_delete_history_also_clears_lock():
     history_store.set_session_locked("session1", True)
     history_store.delete_history("session1")
     assert history_store.is_session_locked("session1") == False
+
+def test_add_entry_invalid_risk_level_rolls_back():
+    with pytest.raises(Exception):
+        add_entry("test-session", "msg", "response", "normal", "not-a-real-risk-level")
