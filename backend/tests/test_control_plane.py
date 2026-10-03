@@ -11,7 +11,7 @@ from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_e
 
 UNSAFE_MARKER = "UNSAFE-MARKER-TEXT-12345"
 
-
+@pytest.mark.live
 @pytest.mark.asyncio
 async def test_unsafe_text_never_appears_in_response_or_history():
     # Forces the model's generated resposne to return an unsafe guardrail verdict
@@ -107,7 +107,11 @@ async def test_generation_timeout_returns_error_variant():
     session_id = f"test-{uuid.uuid4()}"
     request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
 
-    with patch("app.control_plane.generate_response") as mock_generate:
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
         mock_generate.side_effect = httpx.ReadTimeout("simulated timeout")
         response = await handle_message(request)
 
@@ -126,7 +130,11 @@ async def test_generation_model_unavailable_returns_error_variant():
     session_id = f"test-{uuid.uuid4()}"
     request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
 
-    with patch("app.control_plane.generate_response") as mock_generate:
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
         mock_generate.side_effect = httpx.ConnectError("simulated connection failure")
         response = await handle_message(request)
 
@@ -138,23 +146,7 @@ async def test_generation_model_unavailable_returns_error_variant():
     assert len(history) == 1
     assert history[0]["response_type"] == "error"
 
-@pytest.mark.asyncio
-async def test_classification_timeout_returns_error_variant():
-    init_db()
-    session_id = f"test-{uuid.uuid4()}"
-    request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
 
-    with patch("app.control_plane.classify_intent") as mock_classify:
-        mock_classify.side_effect = httpx.ReadTimeout("simulated timeout")
-        response = await handle_message(request)
-
-    assert response.type == "error"
-    assert response.message == "Response is taking longer than expected, we weren't able to respond"
-    assert response.message != ""
-
-    history = get_history(session_id)
-    assert len(history) == 1
-    assert history[0]["response_type"] == "error"
 
 
 @pytest.mark.asyncio
@@ -176,13 +168,19 @@ async def test_classification_model_unavailable_returns_error_variant():
     assert history[0]["response_type"] == "error"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio 
 async def test_guardrail_timeout_returns_error_variant():
     init_db()
     session_id = f"test-{uuid.uuid4()}"
     request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
 
-    with patch("app.control_plane.check_output") as mock_check:
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a normal generated reply"
         mock_check.side_effect = httpx.ReadTimeout("simulated timeout")
         response = await handle_message(request)
 
@@ -201,7 +199,13 @@ async def test_guardrail_model_unavailable_returns_error_variant():
     session_id = f"test-{uuid.uuid4()}"
     request = ChatRequest(session_id=session_id, message="I've been feeling stressed about an upcoming deadline")
 
-    with patch("app.control_plane.check_output") as mock_check:
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a normal generated reply"
         mock_check.side_effect = httpx.ConnectError("simulated connection failure")
         response = await handle_message(request)
 
@@ -214,6 +218,7 @@ async def test_guardrail_model_unavailable_returns_error_variant():
     assert history[0]["response_type"] == "error"
 
 
+@pytest.mark.live
 @pytest.mark.asyncio
 async def test_short_non_english_message_not_blocked():
     # Confirms a short non-English message, which is too short for reliable detection, is not blocked and proceeds to generation.

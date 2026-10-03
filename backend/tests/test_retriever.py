@@ -1,9 +1,8 @@
 from unittest.mock import patch, MagicMock
 from app.rag.retriever import load_system_prompt, retrieve_top_k, assemble_prompt, DEFAULT_K, get_recent_history, format_history_for_assembled_prompt
 from app.storage.history_store import add_entry
-from app.rag.retriever import load_system_prompt, retrieve_top_k, assemble_prompt, DEFAULT_K
 import uuid
-from app.rag.retriever import assemble_prompt
+import pytest
 
 
 # Strictly a mock test, no true Ollama or ChromaDB calls required
@@ -65,6 +64,7 @@ def test_retrieve_top_k_uses_default_k(mock_embedding_model, mock_get_collection
 
 # live test: the one real, end-to-end check, no mocking
 
+@pytest.mark.live
 def test_retrieve_top_k_live_end_to_end():
     # The sole deliberately live test calling Ollama and ChromaDB collection. 
     # Implemented to confirm mocked assumptions are accurate
@@ -77,6 +77,7 @@ def test_retrieve_top_k_live_end_to_end():
     assert "KB-03.2" in result_ids
 
 
+@pytest.mark.live
 def test_assemble_prompt_medium_risk_includes_instruction():
     #
     session_id = f"test-{uuid.uuid4()}"
@@ -84,6 +85,7 @@ def test_assemble_prompt_medium_risk_includes_instruction():
     assert "classified as moderate risk" in prompt
 
 
+@pytest.mark.live
 def test_assemble_prompt_low_risk_excludes_instruction():
     session_id = f"test-{uuid.uuid4()}"
     prompt = assemble_prompt(session_id, "test message", "low")
@@ -118,7 +120,7 @@ def test_format_history_for_assembled_prompt_produces_readable_transcript():
     assert "I've been feeling anxious" in formatted
     assert "That sounds difficult." in formatted
 
-
+@pytest.mark.live
 def test_assemble_prompt_contains_all_four_ingredients():
     session_id = f"test-{uuid.uuid4()}"
     add_entry(session_id, "earlier message", "earlier response", "normal", "low")
@@ -133,3 +135,4 @@ def test_assemble_prompt_contains_all_four_ingredients():
     assert retrieved[0]["id"] in prompt
     assert "earlier message" in prompt
     assert user_message in prompt
+

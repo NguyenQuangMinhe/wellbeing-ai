@@ -77,7 +77,7 @@ def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
     assert history[0]["response_type"] == "crisis"
     assert history[1]["response_type"] == "crisis"
 
-
+@pytest.mark.live
 def test_boundary_does_not_lock_session():
     session_id = str(uuid.uuid4())
 
@@ -98,7 +98,7 @@ def test_boundary_does_not_lock_session():
     print(response2.json())
     assert response2.json()["type"] == "normal"
 
-
+@pytest.mark.live
 def test_different_sessions_isolated():
     locked_session_id = str(uuid.uuid4())
     unrelated_session_id = str(uuid.uuid4())

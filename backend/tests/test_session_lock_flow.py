@@ -51,7 +51,7 @@ def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
     assert history[0]["response_type"] == "crisis"
     assert history[1]["response_type"] == "crisis"  # locked-session response, also recorded
 
-
+@pytest.mark.live
 def test_different_session_unaffected_by_another_sessions_lock():
     client.post("/api/message", json={"session_id": "locked-session", "message": "I want to end my life"})
 
