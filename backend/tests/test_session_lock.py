@@ -5,14 +5,6 @@ from app.main import app
 from app.storage import history_store
 
 
-@pytest.fixture(autouse=True)
-def use_temp_db(tmp_path, monkeypatch):
-    test_db = tmp_path / "test_history.db"
-    monkeypatch.setattr(history_store, "DB_PATH", test_db)
-    history_store.init_db()
-    yield
-
-
 def test_session_unlocked_by_default():
     assert history_store.is_session_locked("session1") == False
 

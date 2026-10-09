@@ -4,17 +4,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.storage import history_store
 
-
-@pytest.fixture(autouse=True)
-def use_temp_db(tmp_path, monkeypatch):
-    test_db = tmp_path / "test_history.db"
-    monkeypatch.setattr(history_store, "DB_PATH", test_db)
-    history_store.init_db()
-    yield
-
-
 client = TestClient(app)
-
 
 def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
     session_id = str(uuid.uuid4())

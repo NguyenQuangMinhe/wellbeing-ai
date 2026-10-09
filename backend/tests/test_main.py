@@ -8,15 +8,6 @@ from app.storage import history_store
 
 client = TestClient(app)
 
-
-@pytest.fixture(autouse=True)
-def use_temp_db(tmp_path, monkeypatch):
-    test_db = tmp_path / "test_history.db"
-    monkeypatch.setattr(history_store, "DB_PATH", test_db)
-    history_store.init_db()
-    yield
-
-
 def test_health_check():
     response = client.get("/health")
     assert response.status_code == 200

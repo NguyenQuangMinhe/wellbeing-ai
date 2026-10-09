@@ -64,5 +64,3 @@ def measure_latency():
         print(f"{label}: {elapsed:.2f}s")
 
 
-if __name__ == "__main__":
-    measure_latency()
