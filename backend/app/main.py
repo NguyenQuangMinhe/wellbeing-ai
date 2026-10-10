@@ -1,15 +1,17 @@
 import logging
+import re
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
-import re
 
-from app.control_plane import handle_message
+from app.control_plane import handle_message, MODEL_UNAVAILABLE_MESSAGE
 from app.models.schemas import ChatRequest, ChatResponse
 from app.storage.history_store import delete_history, get_history, init_db, is_session_locked
+
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
+
 def validate_session_id(session_id: str) -> str:
     if not UUID_PATTERN.match(session_id):
         raise HTTPException(status_code=400, detail="Invalid session_id format. Must be a valid UUID.")
@@ -42,7 +44,7 @@ async def post_message(request: ChatRequest) -> ChatResponse:
         logger.exception("Unhandled error processing message for session %s", request.session_id)
         return ChatResponse(
             type="error",
-            message="We couldn’t generate a response right now. Please try again later, sorry for the inconvenience.",
+            message=MODEL_UNAVAILABLE_MESSAGE,
             risk_level="low",
             end_session=False,
         )

@@ -1,12 +1,13 @@
 import time
 import sys
 import os
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.llm.ollama_clients import generation_llm, embedding_model, llama_guard
 
-
+@pytest.mark.live
 def test_gemma_generation():
     print("\n--Testing Gemma 4 E4B (generation model)--")
     start = time.time()
@@ -15,7 +16,7 @@ def test_gemma_generation():
     print(f"Response: {response}")
     print(f"Time taken: {elapsed:.2f}s")
 
-
+@pytest.mark.live
 def test_nomic_embedding():
     print("\n--Testing nomic-embed-text (embedding model)--")
     start = time.time()
@@ -24,7 +25,7 @@ def test_nomic_embedding():
     print(f"Vector length: {len(vector)}")
     print(f"Time taken: {elapsed:.2f}s")
 
-
+@pytest.mark.live
 def test_llama_guard_classification():
     print("\n--Testing Llama Guard 3 (classification model)--")
     start = time.time()
@@ -32,10 +33,3 @@ def test_llama_guard_classification():
     elapsed = time.time() - start
     print(f"Response: {response}")
     print(f"Time taken: {elapsed:.2f}s")
-
-
-
-if __name__ == "__main__":
-    test_gemma_generation()
-    test_nomic_embedding()
-    test_llama_guard_classification()

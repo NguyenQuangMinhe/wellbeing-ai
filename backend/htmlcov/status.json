@@ -1,0 +1,296 @@
+{
+  "note": "This file is an internal implementation detail to speed up HTML report generation. Its format can change at any time. You might be looking for the JSON report: https://coverage.rtfd.io/cmd.html#cmd-json",
+  "format": 5,
+  "version": "7.16.2",
+  "globals": "0b3ffc97cd40b247c97de50885da98ec",
+  "files": {
+    "z_5f5a17c013354698___init___py": {
+      "hash": "22a55c70b987e14d3f30c99eef952833",
+      "index": {
+        "url": "z_5f5a17c013354698___init___py.html",
+        "file": "app\\__init__.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 0,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_861e61086dbdf870_boundary_responses_py": {
+      "hash": "177473af449cb669eb0e0ad8fe11ba81",
+      "index": {
+        "url": "z_861e61086dbdf870_boundary_responses_py.html",
+        "file": "app\\classifier\\boundary_responses.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 13,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_861e61086dbdf870_crisis_keywords_py": {
+      "hash": "b333aa22c9981d993cb8beecc3345590",
+      "index": {
+        "url": "z_861e61086dbdf870_crisis_keywords_py.html",
+        "file": "app\\classifier\\crisis_keywords.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 9,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_861e61086dbdf870_intent_classifier_py": {
+      "hash": "2a413d9ea41888d3ecb60f856c92f347",
+      "index": {
+        "url": "z_861e61086dbdf870_intent_classifier_py.html",
+        "file": "app\\classifier\\intent_classifier.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 8,
+          "n_excluded": 0,
+          "n_missing": 6,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_861e61086dbdf870_language_check_py": {
+      "hash": "b8284160a9c6664901d4e2c7478b84d4",
+      "index": {
+        "url": "z_861e61086dbdf870_language_check_py.html",
+        "file": "app\\classifier\\language_check.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 11,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_861e61086dbdf870_output_check_py": {
+      "hash": "511adcffea723ca7fd50a7c7b8feaec5",
+      "index": {
+        "url": "z_861e61086dbdf870_output_check_py.html",
+        "file": "app\\classifier\\output_check.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 8,
+          "n_excluded": 0,
+          "n_missing": 6,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_5f5a17c013354698_config_py": {
+      "hash": "0d18516afea9149846d337087bd9a919",
+      "index": {
+        "url": "z_5f5a17c013354698_config_py.html",
+        "file": "app\\config.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 10,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_5f5a17c013354698_control_plane_py": {
+      "hash": "f5dd3b9e396b3d306fb5a55399a044af",
+      "index": {
+        "url": "z_5f5a17c013354698_control_plane_py.html",
+        "file": "app\\control_plane.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 96,
+          "n_excluded": 0,
+          "n_missing": 15,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_3449ae63925a1519_generator_py": {
+      "hash": "250db5b548c6d17b4238286e2c625284",
+      "index": {
+        "url": "z_3449ae63925a1519_generator_py.html",
+        "file": "app\\llm\\generator.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 4,
+          "n_excluded": 0,
+          "n_missing": 2,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_3449ae63925a1519_ollama_clients_py": {
+      "hash": "af9353ff44b783c7e0d054db2b909555",
+      "index": {
+        "url": "z_3449ae63925a1519_ollama_clients_py.html",
+        "file": "app\\llm\\ollama_clients.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 6,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_5f5a17c013354698_main_py": {
+      "hash": "75a9a781ca27569ca14d9e3a3b8ea553",
+      "index": {
+        "url": "z_5f5a17c013354698_main_py.html",
+        "file": "app\\main.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 45,
+          "n_excluded": 0,
+          "n_missing": 2,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_1374716a89f3e08d___init___py": {
+      "hash": "22a55c70b987e14d3f30c99eef952833",
+      "index": {
+        "url": "z_1374716a89f3e08d___init___py.html",
+        "file": "app\\models\\__init__.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 0,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_1374716a89f3e08d_schemas_py": {
+      "hash": "cd2a66ddc2eafa502d89a34f2adf87f2",
+      "index": {
+        "url": "z_1374716a89f3e08d_schemas_py.html",
+        "file": "app\\models\\schemas.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 5,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_317d9baa3c929aa9_ingest_py": {
+      "hash": "e86249becd708c3caa35e5e2660d9665",
+      "index": {
+        "url": "z_317d9baa3c929aa9_ingest_py.html",
+        "file": "app\\rag\\ingest.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 72,
+          "n_excluded": 0,
+          "n_missing": 56,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_317d9baa3c929aa9_retriever_py": {
+      "hash": "0a85da2b0b205fd6f4893d518f6d168e",
+      "index": {
+        "url": "z_317d9baa3c929aa9_retriever_py.html",
+        "file": "app\\rag\\retriever.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 52,
+          "n_excluded": 0,
+          "n_missing": 15,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    },
+    "z_23e866ebf6b81dbe_history_store_py": {
+      "hash": "029368c6180a7ec67ebaf55d74a457d9",
+      "index": {
+        "url": "z_23e866ebf6b81dbe_history_store_py.html",
+        "file": "app\\storage\\history_store.py",
+        "description": "",
+        "nums": {
+          "precision": 0,
+          "n_files": 1,
+          "n_statements": 45,
+          "n_excluded": 0,
+          "n_missing": 0,
+          "n_branches": 0,
+          "n_partial_branches": 0,
+          "n_missing_branches": 0
+        }
+      }
+    }
+  }
+}
