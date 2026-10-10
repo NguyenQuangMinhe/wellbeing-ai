@@ -93,3 +93,25 @@ def test_delete_history_also_clears_lock():
     history_store.set_session_locked("session1", True)
     history_store.delete_history("session1")
     assert history_store.is_session_locked("session1") == False
+
+# --- Session staging ---
+
+def test_stage_defaults_to_start():
+    assert history_store.get_session_stage("new-session") == "Start"
+
+
+def test_set_and_get_stage():
+    history_store.set_session_stage("session1", "Explore")
+    assert history_store.get_session_stage("session1") == "Explore"
+
+
+def test_stage_is_session_scoped():
+    history_store.set_session_stage("session1", "Reflect")
+    assert history_store.get_session_stage("session2") == "Start"
+
+
+def test_delete_history_resets_stage():
+    history_store.add_entry("session1", "hi", "hello", "normal", "low")
+    history_store.set_session_stage("session1", "Finish")
+    history_store.delete_history("session1")
+    assert history_store.get_session_stage("session1") == "Start"
