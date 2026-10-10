@@ -8,6 +8,7 @@ from app.control_plane import handle_message, GUARDRAIL_FALLBACK_MESSAGE
 from app.models.schemas import ChatRequest
 from app.storage.history_store import init_db, get_history, is_session_locked
 from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
+from app.storage.history_store import init_db, get_history, is_session_locked, get_session_stage
 
 UNSAFE_MARKER = "UNSAFE-MARKER-TEXT-12345"
 
@@ -249,3 +250,80 @@ async def test_long_non_english_message_blocked():
     history = get_history(session_id)
     assert len(history) == 1
     assert history[0]["response_type"] == "error"
+
+@pytest.mark.asyncio
+async def test_normal_safe_response_advances_stage():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(
+        session_id=session_id,
+        message="I've been feeling pretty anxious about work lately",
+    )
+
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a safe generated reply"
+        mock_check.return_value = {"verdict": "safe"}
+        response = await handle_message(request)
+
+    assert response.type == "normal"
+    assert get_session_stage(session_id) == "Explore"
+
+
+@pytest.mark.asyncio
+async def test_short_message_does_not_advance_stage():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(session_id=session_id, message="hi there friend")
+
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a safe generated reply"
+        mock_check.return_value = {"verdict": "safe"}
+        response = await handle_message(request)
+
+    assert response.type == "normal"
+    assert get_session_stage(session_id) == "Start"
+
+
+@pytest.mark.asyncio
+async def test_unsafe_guardrail_does_not_advance_stage():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    request = ChatRequest(
+        session_id=session_id,
+        message="a sufficiently long message about something going on",
+    )
+
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a generated reply"
+        mock_check.return_value = {"verdict": "unsafe"}
+        response = await handle_message(request)
+
+    assert response.type == "error"
+    assert get_session_stage(session_id) == "Start"
+
+
+@pytest.mark.asyncio
+async def test_crisis_short_circuit_leaves_stage_untouched():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    response = await handle_message(
+        ChatRequest(session_id=session_id, message="I might hurt myself")
+    )
+
+    assert response.type == "crisis"
+    assert get_session_stage(session_id) == "Start"

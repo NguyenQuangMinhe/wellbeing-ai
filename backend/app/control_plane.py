@@ -1,16 +1,13 @@
 import logging
-from urllib import response
-
-from click import prompt
 import httpx
-
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
+from app.classifier.stage_gate import evaluate_gate
 from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
 from app.classifier.intent_classifier import classify_intent
 from app.classifier.output_check import check_output
 from app.llm.generator import generate_response
 from app.rag.retriever import assemble_prompt
-from app.storage.history_store import add_entry, is_session_locked, set_session_locked, init_db
+from app.storage.history_store import add_entry, is_session_locked, set_session_locked, init_db, get_session_stage, set_session_stage
 from app.models.schemas import ChatRequest, ChatResponse
 from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
 
@@ -43,6 +40,10 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
+
+     # Stage 0: Read current conversation stage
+    current_stage = get_session_stage(session_id)
+    logger.info("Stage: stage_read | session=%s | stage=%s", session_id, current_stage)
 
     #Stage 1.1: Crisis keyword check 
     logger.info("Stage: crisis_keywords | session=%s", session_id)
@@ -114,7 +115,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
 
     #Stage 3: Prompt Assembly (RAG + conversational history + system prompt)
     logger.info("Stage: prompt_assembly | session=%s", session_id)
-    prompt = assemble_prompt(session_id, user_message, risk_level)
+    prompt = assemble_prompt(session_id, user_message, risk_level, current_stage)
     print(f"[DEBUG] Moderate-risk instruction in prompt: {'classified as moderate risk' in prompt}")
 
     #Stage 4: Generation
@@ -177,6 +178,10 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             end_session=False
         )
     else:
+        new_stage = evaluate_gate(current_stage, user_message)
+        if new_stage != current_stage:
+            logger.info("Stage: gate_check | session=%s | advancing %s -> %s", session_id, current_stage, new_stage)
+            set_session_stage(session_id, new_stage)
         response = ChatResponse(
             type="normal",
             message=generated_text,

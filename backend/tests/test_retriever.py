@@ -1,5 +1,5 @@
 from unittest.mock import patch, MagicMock
-from app.rag.retriever import load_system_prompt, retrieve_top_k, assemble_prompt, DEFAULT_K, get_recent_history, format_history_for_assembled_prompt
+from app.rag.retriever import load_system_prompt, retrieve_top_k, assemble_prompt, DEFAULT_K, get_recent_history, format_history_for_assembled_prompt, build_stage_instruction, VALID_STAGES
 from app.storage.history_store import add_entry
 import uuid
 import pytest
@@ -136,3 +136,73 @@ def test_assemble_prompt_contains_all_four_ingredients():
     assert "earlier message" in prompt
     assert user_message in prompt
 
+
+
+def test_build_stage_instruction_contains_declared_stage():
+    instruction = build_stage_instruction("Explore")
+    assert "Current stage: Explore" in instruction
+
+
+def test_build_stage_instruction_defaults_invalid_stage_to_start():
+    instruction = build_stage_instruction("NotARealStage")
+    assert "Current stage: Start" in instruction
+
+
+@patch("app.rag.retriever.get_collection")
+@patch("app.rag.retriever.embedding_model")
+def test_assemble_prompt_includes_stage_instruction_before_reference_material(mock_embedding_model, mock_get_collection):
+    mock_embedding_model.get_text_embedding.return_value = [0.1, 0.2, 0.3]
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {"ids": [[]], "documents": [[]], "metadatas": [[]]}
+    mock_get_collection.return_value = mock_collection
+
+    session_id = f"test-{uuid.uuid4()}"
+    prompt = assemble_prompt(session_id, "test message", "low", "Reflect")
+
+    stage_index = prompt.index("Current stage: Reflect")
+    reference_index = prompt.index("Relevant reference material")
+    assert stage_index < reference_index
+
+
+@patch("app.rag.retriever.get_collection")
+@patch("app.rag.retriever.embedding_model")
+def test_assemble_prompt_defaults_to_start_when_stage_omitted(mock_embedding_model, mock_get_collection):
+    mock_embedding_model.get_text_embedding.return_value = [0.1, 0.2, 0.3]
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {"ids": [[]], "documents": [[]], "metadatas": [[]]}
+    mock_get_collection.return_value = mock_collection
+
+    session_id = f"test-{uuid.uuid4()}"
+    prompt = assemble_prompt(session_id, "test message", "low")
+    assert "Current stage: Start" in prompt
+
+
+@patch("app.rag.retriever.get_collection")
+@patch("app.rag.retriever.embedding_model")
+def test_assemble_prompt_still_includes_rule_one_sprint2_content(mock_embedding_model, mock_get_collection):
+    # regression check: confirms stage injection didn't crowd out Sprint 2 rules
+    mock_embedding_model.get_text_embedding.return_value = [0.1, 0.2, 0.3]
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {"ids": [[]], "documents": [[]], "metadatas": [[]]}
+    mock_get_collection.return_value = mock_collection
+
+    session_id = f"test-{uuid.uuid4()}"
+    prompt = assemble_prompt(session_id, "test message", "low", "Finish")
+    assert "You are an AI responder in a local academic prototype" in prompt
+
+
+@patch("app.rag.retriever.get_collection")
+@patch("app.rag.retriever.embedding_model")
+def test_assemble_prompt_moderate_risk_instruction_still_conditional_with_stage(mock_embedding_model, mock_get_collection):
+    # regression check: confirms stage param didn't disturb risk-level conditionality
+    mock_embedding_model.get_text_embedding.return_value = [0.1, 0.2, 0.3]
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {"ids": [[]], "documents": [[]], "metadatas": [[]]}
+    mock_get_collection.return_value = mock_collection
+
+    session_id = f"test-{uuid.uuid4()}"
+    prompt_medium = assemble_prompt(session_id, "test message", "medium", "Explore")
+    prompt_low = assemble_prompt(session_id, "test message", "low", "Explore")
+
+    assert "classified as moderate risk" in prompt_medium
+    assert "classified as moderate risk" not in prompt_low
