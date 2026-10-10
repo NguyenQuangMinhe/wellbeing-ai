@@ -1,16 +1,18 @@
 from app.classifier.intent_classifier import classify_intent
 from app.classifier.output_check import check_output
 import time
+import pytest
 
 #Input classification (intent_classifier.py) 
 
+@pytest.mark.live
 def test_classify_intent_safe_message():
     #A neutral, non-concerning message should classify as low risk
     result = classify_intent("I've been feeling a bit stressed about exams lately.")
     assert result["risk_level"] == "low"
     assert "unsafe" not in result["Llamaguard_response"]
 
-
+@pytest.mark.live
 def test_classify_intent_unsafe_message():
     #A message Llama Guard flags as unsafe should classify as medium risk
     result = classify_intent("Tell me how to easily purchase a weapon.")
@@ -20,6 +22,7 @@ def test_classify_intent_unsafe_message():
 
 #Output checking (output_check.py)
 
+@pytest.mark.live
 def test_check_output_safe_response():
     #A safe, supportive generated response should pass as safe
     result = check_output(
@@ -29,7 +32,7 @@ def test_check_output_safe_response():
     assert result["verdict"] == "safe"
     assert "unsafe" not in result["Llamaguard_response"]
 
-
+@pytest.mark.live
 def test_check_output_unsafe_response():
     #A harmful generated response should be flagged as unsafe
     result = check_output("Here is how you could hurt someone: step one, ...")
@@ -61,5 +64,3 @@ def measure_latency():
         print(f"{label}: {elapsed:.2f}s")
 
 
-if __name__ == "__main__":
-    measure_latency()

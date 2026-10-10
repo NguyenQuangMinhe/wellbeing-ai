@@ -1,22 +1,13 @@
 import pytest
+import uuid
 from fastapi.testclient import TestClient
 from app.main import app
 from app.storage import history_store
 
-
-@pytest.fixture(autouse=True)
-def use_temp_db(tmp_path, monkeypatch):
-    test_db = tmp_path / "test_history.db"
-    monkeypatch.setattr(history_store, "DB_PATH", test_db)
-    history_store.init_db()
-    yield
-
-
 client = TestClient(app)
 
-
 def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
-    session_id = "integration-test-session"
+    session_id = str(uuid.uuid4())
 
     # 1. Unlocked — session has no prior state
     assert history_store.is_session_locked(session_id) == False
@@ -50,7 +41,7 @@ def test_full_lifecycle_unlocked_to_high_risk_to_locked_to_terminated():
     assert history[0]["response_type"] == "crisis"
     assert history[1]["response_type"] == "crisis"  # locked-session response, also recorded
 
-
+@pytest.mark.live
 def test_different_session_unaffected_by_another_sessions_lock():
     client.post("/api/message", json={"session_id": "locked-session", "message": "I want to end my life"})
 
