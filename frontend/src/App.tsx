@@ -179,8 +179,9 @@ function App() {
                     <button
                       type="button"
                       onClick={() => {
-                        setDeleteStatus("idle"); 
-                        startNewSession();}}
+                        setDeleteStatus("idle");
+                        startNewSession();
+                      }}
                       className="rounded p-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     >
                       Done
@@ -300,7 +301,7 @@ function App() {
             <button
               type="button"
               onClick={handleSend}
-              disabled={!inputText.trim() || isLoading|| !acknowledged}
+              disabled={!inputText.trim() || isLoading || !acknowledged}
               className="rounded p-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:bg-gray-300 disabled:text-gray-500"
             >
               Send
