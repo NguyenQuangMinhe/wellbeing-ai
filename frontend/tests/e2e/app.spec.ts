@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("wellbeing_disclaimer_ack", "true"),
+  );
+});
+
 test("disclaimer is visible on load and has no dismiss control", async ({
   page,
 }) => {

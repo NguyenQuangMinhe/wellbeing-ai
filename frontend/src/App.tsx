@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useChatSession } from "./hooks/useChatSession";
 import { TakeoverScreen } from "./components/Takeover";
 
+import { DisclaimerGate } from "./components/DisclaimerGate";
+import { useDisclaimerAck } from "./hooks/useDisclaimerAckn";
+
 type DeleteStatus = "idle" | "confirming" | "loading" | "error" | "success";
 
 function App() {
@@ -58,8 +61,15 @@ function App() {
     return () => clearTimeout(timer);
   }, [isLoading]);
 
+  // Acknowledgements
+  const { acknowledged, acknowledge } = useDisclaimerAck();
+  // focus the textarea only once the gate is gone
+  useEffect(() => {
+    if (!takeoverActive && acknowledged) textareaRef.current?.focus();
+  }, [isLoading, takeoverActive, acknowledged]);
+
   function handleSend() {
-    if (!inputText.trim() || isLoading || takeoverActive) return;
+    if (!acknowledged ||!inputText.trim() || isLoading || takeoverActive) return;
     send(inputText);
     setInputText("");
   }
@@ -89,6 +99,9 @@ function App() {
   }
 
   return (
+    <>
+    {!acknowledged && <DisclaimerGate onAcknowledge={acknowledge} />}
+    <div inert={!acknowledged} className="flex h-screen w-full flex-col bg-white">
     <div className="flex h-screen w-full flex-col bg-white">
       {/* Disclaimer */}
       <div className="sticky top-0 z-10 bg-gray-100 p-2 text-sm text-gray-600 text-center">
@@ -282,6 +295,8 @@ function App() {
         </button>
       </div>
     </div>
+    </div>
+    </>
   );
 }
 
