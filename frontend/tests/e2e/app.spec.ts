@@ -1,9 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() =>
-    localStorage.setItem("wellbeing_disclaimer_ack", "true"),
-  );
+  await page.addInitScript(() => {
+    if (!localStorage.getItem("wellbeing_session_id")) {
+      const id = crypto.randomUUID();
+      localStorage.setItem("wellbeing_session_id", id);
+      localStorage.setItem("wellbeing_disclaimer_ack", id);
+    }
+  });
 });
 
 test("disclaimer is visible on load and has no dismiss control", async ({
