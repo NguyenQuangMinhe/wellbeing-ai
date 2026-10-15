@@ -255,7 +255,7 @@ function App() {
                   />
                 )}
               </div>
-          ))}
+            ))}
 
             {isLoading && !isTimedOut && (
               <div className="mb-2 flex justify-start">
@@ -289,10 +289,7 @@ function App() {
                 {error}
               </div>
             )}
-            <LongConversationReminder
-              visible={showLongConversationReminder}
-            />
-
+            <LongConversationReminder visible={showLongConversationReminder} />
 
             <div ref={chatEndRef} />
           </div>

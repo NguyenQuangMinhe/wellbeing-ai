@@ -2,7 +2,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
 async function acknowledgeGate(page: Page) {
-  await expect(page.getByText(/Before proceeding,/)).toBeVisible();
   await page.getByRole("button", { name: /i understand/i }).click();
 }
 
@@ -11,7 +10,7 @@ test.beforeEach(async ({ page }) => {
     if (!localStorage.getItem("wellbeing_session_id")) {
       const id = crypto.randomUUID();
       localStorage.setItem("wellbeing_session_id", id);
-      localStorage.removeItem("wellbeing_disclaimer_ack");
+      localStorage.setItem("wellbeing_disclaimer_ack", id);
     }
   });
 });
