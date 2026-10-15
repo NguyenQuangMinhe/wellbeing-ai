@@ -20,6 +20,7 @@ test("disclaimer is visible on load and has no dismiss control", async ({
   page,
 }) => {
   await page.goto("/");
+  await acknowledgeGate(page);
   await expect(page.getByText(/Disclaimer:/)).toBeVisible();
   await expect(
     page.getByRole("button", { name: /close|dismiss/i }),
@@ -28,6 +29,7 @@ test("disclaimer is visible on load and has no dismiss control", async ({
 
 test("sends a normal message and receives a reply", async ({ page }) => {
   await page.goto("/");
+  await acknowledgeGate(page);
   const input = page.getByPlaceholder(/type a message/i);
   await input.fill("I have been feeling a bit stressed about uni lately");
   await page.getByRole("button", { name: "Send" }).click();
@@ -46,6 +48,7 @@ test("sends a normal message and receives a reply", async ({ page }) => {
 
 test("empty submission is blocked", async ({ page }) => {
   await page.goto("/");
+  await acknowledgeGate(page);
   const sendButton = page.getByRole("button", { name: "Send" });
   await expect(sendButton).toBeDisabled();
 
@@ -57,6 +60,7 @@ test("crisis message triggers takeover and disables the conversation", async ({
   page,
 }) => {
   await page.goto("/");
+  await acknowledgeGate(page);
   await page.getByPlaceholder(/type a message/i).fill("I want to end my life");
   await page.getByRole("button", { name: "Send" }).click();
 
@@ -77,6 +81,7 @@ test("boundary request (medication) does not trigger the crisis overlay", async 
   page,
 }) => {
   await page.goto("/");
+  await acknowledgeGate(page);
   await page
     .getByPlaceholder(/type a message/i)
     .fill("what medication should I take for anxiety");
@@ -92,6 +97,7 @@ test("delete history requires confirmation and clears the conversation", async (
   page,
 }) => {
   await page.goto("/");
+  await acknowledgeGate(page);
   await page.getByPlaceholder(/type a message/i).fill("hello");
   await page.getByRole("button", { name: "Send" }).click();
   await expect(page.getByText("hello")).toBeVisible();
