@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState  } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReportFlagProps } from "../types/chat";
 import { sendFeedback } from "../api/client";
 const REPORT_REASONS = [
@@ -11,8 +11,11 @@ const REPORT_REASONS = [
 ];
 type ReportStatus = "idle" | "success" | "error";
 
-
-export function ReportFlag({sessionId, messageId, messageText}: ReportFlagProps) {
+export function ReportFlag({
+  sessionId,
+  messageId,
+  messageText,
+}: ReportFlagProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [comments, setComments] = useState("");
@@ -22,15 +25,20 @@ export function ReportFlag({sessionId, messageId, messageText}: ReportFlagProps)
     setSelectedReasons((previous) =>
       previous.includes(reason)
         ? previous.filter((item) => item !== reason)
-        : [...previous, reason]
+        : [...previous, reason],
     );
   }
-const triggerRef = useRef<HTMLButtonElement>(null);
-const dialogRef = useRef<HTMLDivElement>(null);
-async function handleSubmit() {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  async function handleSubmit() {
     if (selectedReasons.length === 0) return;
 
-    const report = {messageId, messageText, reasons: selectedReasons, additional: comments.trim(),};
+    const report = {
+      messageId,
+      messageText,
+      reasons: selectedReasons,
+      additional: comments.trim(),
+    };
 
     setStatus("idle");
 
@@ -42,57 +50,57 @@ async function handleSubmit() {
     }
   }
   useEffect(() => {
-  if (!isOpen) return;
+    if (!isOpen) return;
 
-  const dialog = dialogRef.current;
-  if (!dialog) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
 
-  const getFocusableElements = () =>
-    Array.from(
-      dialog.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((element) => element.getAttribute("aria-hidden") !== "true");
+    const getFocusableElements = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getAttribute("aria-hidden") !== "true");
 
-  // Move focus into the popup when it opens.
-  const focusable = getFocusableElements();
-  (focusable[0] ?? dialog).focus();
+    // Move focus into the popup when it opens.
+    const focusable = getFocusableElements();
+    (focusable[0] ?? dialog).focus();
 
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      handleClose();
-      return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleClose();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const elements = getFocusableElements();
+
+      if (elements.length === 0) {
+        event.preventDefault();
+        dialog?.focus();
+        return;
+      }
+
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
-    if (event.key !== "Tab") return;
+    dialog.addEventListener("keydown", handleKeyDown);
 
-    const elements = getFocusableElements();
-
-    if (elements.length === 0) {
-      event.preventDefault();
-      dialog?.focus();
-      return;
-    }
-
-    const first = elements[0];
-    const last = elements[elements.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
-  dialog.addEventListener("keydown", handleKeyDown);
-
-  return () => {
-    dialog.removeEventListener("keydown", handleKeyDown);
-  };
-}, [isOpen]);
+    return () => {
+      dialog.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   function handleClose() {
     setIsOpen(false);
@@ -162,53 +170,49 @@ async function handleSubmit() {
             onClick={(event) => event.stopPropagation()}
           >
             {status === "success" ? (
-                // Success confirmation
-                <div className="py-6 text-center text-gray-800">
-                  <p className="font-bold text-lg">
-                    Message reported
-                  </p>
-                  <p className="mt-2 text-gray-600">
-                    Thank you for helping improve our support system.
-                  </p>
+              // Success confirmation
+              <div className="py-6 text-center text-gray-800">
+                <p className="font-bold text-lg">Message reported</p>
+                <p className="mt-2 text-gray-600">
+                  Thank you for helping improve our support system.
+                </p>
 
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="mt-5 rounded-md bg-blue-600 px-4 py-2
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="mt-5 rounded-md bg-blue-600 px-4 py-2
                               text-sm font-medium text-white
                               hover:bg-blue-700
                               focus-visible:outline-none
                               focus-visible:ring-2
                               focus-visible:ring-blue-500"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : status === "error" ? (
-                // Error confirmation
-                <div className="py-6 text-center text-gray-800">
-                  <p className="font-bold text-lg">
-                    Message reporting Error
-                  </p>
-                  <p className="mt-2 text-gray-600">
-                    Sorry for the inconvenience try again later.
-                  </p>
+                >
+                  Done
+                </button>
+              </div>
+            ) : status === "error" ? (
+              // Error confirmation
+              <div className="py-6 text-center text-gray-800">
+                <p className="font-bold text-lg">Message reporting Error</p>
+                <p className="mt-2 text-gray-600">
+                  Sorry for the inconvenience try again later.
+                </p>
 
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="mt-5 rounded-md bg-blue-600 px-4 py-2
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="mt-5 rounded-md bg-blue-600 px-4 py-2
                               text-sm font-medium text-white
                               hover:bg-blue-700
                               focus-visible:outline-none
                               focus-visible:ring-2
                               focus-visible:ring-blue-500"
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                //Normal
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              //Normal
               <>
                 <div className="flex items-start justify-between">
                   <div>
