@@ -17,20 +17,23 @@ export async function sendMessage(payload: ChatRequest): Promise<ChatResponse> {
 
   return response.json();
 }
-export async function sendFeedback(sessionId: string, feedback: FeedbackRequest,): Promise<void> {
+export async function sendFeedback(
+  sessionId: string,
+  feedback: FeedbackRequest,
+): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/feedback/${sessionId}`, {
     method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message_id: feedback.messageId,
-        message_text: feedback.messageText,
-        reasons: feedback.reasons,
-        additional: feedback.additional,
-      }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message_id: feedback.messageId,
+      message_text: feedback.messageText,
+      reasons: feedback.reasons,
+      additional: feedback.additional,
+    }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Backend request failed: ${response.status}`);
   }
