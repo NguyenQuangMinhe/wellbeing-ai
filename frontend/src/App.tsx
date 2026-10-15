@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { useChatSession } from "./hooks/useChatSession";
 import { TakeoverScreen } from "./components/Takeover";
@@ -6,6 +7,7 @@ import { DisclaimerGate } from "./components/DisclaimerGate";
 import { useDisclaimerAck } from "./hooks/useDisclaimerAckn";
 
 import { ReportFlag } from "./components/ReportFlag";
+import { LongConversationReminder } from "./components/LongConversationReminder";
 
 type DeleteStatus = "idle" | "confirming" | "loading" | "error" | "success";
 
@@ -81,6 +83,8 @@ function App() {
     send(inputText);
     setInputText("");
   }
+  // Long conversation
+  const showLongConversationReminder = messages.length >= 1;
 
   async function handleConfirmDelete() {
     setDeleteStatus("loading");
@@ -229,7 +233,6 @@ function App() {
 
             {messages.map((msg, i) => (
               <div
-                key={i}
                 className={`mb-2 flex ${
                   msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
@@ -243,6 +246,7 @@ function App() {
                 >
                   {msg.text}
                 </div>
+
                 {msg.role === "system" && (
                   <ReportFlag
                     sessionId={sessionId}
@@ -251,7 +255,7 @@ function App() {
                   />
                 )}
               </div>
-            ))}
+          ))}
 
             {isLoading && !isTimedOut && (
               <div className="mb-2 flex justify-start">
@@ -285,6 +289,10 @@ function App() {
                 {error}
               </div>
             )}
+            <LongConversationReminder
+              visible={showLongConversationReminder}
+            />
+
 
             <div ref={chatEndRef} />
           </div>
