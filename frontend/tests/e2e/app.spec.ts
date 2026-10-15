@@ -1,5 +1,12 @@
 // TODO: Fix
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+async function acknowledgeGate(page: Page) {
+  const gate = page.getByRole("dialog", { name: /before you start/i });
+  await expect(gate).toBeVisible();
+  await page.getByRole("button", { name: /i understand/i }).click();
+  await expect(gate).toHaveCount(0);
+}
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -103,6 +110,8 @@ test("delete history requires confirmation and clears the conversation", async (
 
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByText("hello")).toHaveCount(0);
+  //ack
+  await acknowledgeGate(page);
 
   // session remains usable after deletion
   const input = page.getByPlaceholder(/type a message/i);
