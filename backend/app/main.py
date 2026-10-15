@@ -48,6 +48,12 @@ async def post_message(request: ChatRequest) -> ChatResponse:
             risk_level="low",
             end_session=False,
         )
+# Mock
+@app.post("/api/feedback/{session_id}")
+async def post_feedback(session_id: str, feedback: dict):
+    validate_session_id(session_id)
+    logger.info("Received feedback for session %s: %s", session_id, feedback)
+    return {"status": "success"}
 
 
 @app.delete("/api/history/{session_id}")

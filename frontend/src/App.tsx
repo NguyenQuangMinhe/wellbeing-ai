@@ -5,6 +5,8 @@ import { TakeoverScreen } from "./components/Takeover";
 import { DisclaimerGate } from "./components/DisclaimerGate";
 import { useDisclaimerAck } from "./hooks/useDisclaimerAckn";
 
+import { ReportFlag } from "./components/ReportFlag";
+
 type DeleteStatus = "idle" | "confirming" | "loading" | "error" | "success";
 
 function App() {
@@ -241,6 +243,13 @@ function App() {
                 >
                   {msg.text}
                 </div>
+                {msg.role === "system" && (
+                  <ReportFlag
+                    sessionId={sessionId}
+                    messageId={i.toString()}
+                    messageText={msg.text}
+                  />
+                )}
               </div>
             ))}
 

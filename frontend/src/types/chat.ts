@@ -18,3 +18,18 @@ export type HistoryEntry = {
   risk_level: "low" | "medium" | "high";
   created_at: string;
 };
+
+export type ReportFlagProps = {
+  sessionId: string;
+  messageId: string;
+  messageText: string;
+  // reasons: string[];
+  // additional: string;
+};
+
+export type FeedbackRequest = {
+  messageId: string;
+  messageText: string;
+  reasons: string[];
+  additional: string;
+};
