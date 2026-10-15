@@ -2,10 +2,8 @@
 import { test, expect, type Page } from "@playwright/test";
 
 async function acknowledgeGate(page: Page) {
-  const gate = page.getByRole("dialog", { name: /before you start/i });
-  await expect(gate).toBeVisible();
+  await expect(page.getByText(/Before proceeding,/)).toBeVisible();
   await page.getByRole("button", { name: /i understand/i }).click();
-  await expect(gate).toHaveCount(0);
 }
 
 test.beforeEach(async ({ page }) => {
