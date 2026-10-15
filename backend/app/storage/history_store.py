@@ -54,7 +54,9 @@ def init_db() -> None:
             CREATE TABLE IF NOT EXISTS sessions (
                 session_id TEXT PRIMARY KEY,
                 locked INTEGER NOT NULL DEFAULT 0,
-                locked_at TEXT
+                locked_at TEXT,
+                stage TEXT NOT NULL DEFAULT 'Start'
+                    CHECK (stage IN ('Start', 'Explore', 'Reflect', 'Finish'))
             )
             """
         )
@@ -93,6 +95,28 @@ def delete_history(session_id: str) -> int:
             (session_id,),
         )
         return rows.rowcount
+
+#Stage functions to for traching which CBT conversation stage a session is in (706c)
+def get_session_stage(session_id: str) -> str:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT stage FROM sessions WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+        return row["stage"] if row else "Start"   # "If no stage is supplied, stay in start"
+
+
+def set_session_stage(session_id: str, stage: str) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO sessions (session_id, stage)
+            VALUES (?, ?)
+            ON CONFLICT(session_id) DO UPDATE SET
+                stage = excluded.stage
+            """,
+            (session_id, stage),
+        )
 
 # Session lock function, treats the session as terminated regardless of frontend local state
 # TODO: apply session lock
