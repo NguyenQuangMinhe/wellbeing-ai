@@ -18,3 +18,10 @@ class FeedbackRequest(BaseModel):
     message_text: str
     category: list[str] = Field(min_length=1)
     additional: str = Field(default="", max_length=1000)
+
+class ChatResponse(BaseModel):
+    type: Literal["normal", "crisis", "non-english", "error", "boundary"]
+    message: str
+    risk_level: Literal["low", "medium", "high"]
+    end_session: bool
+    stage: Literal["Start", "Explore", "Reflect", "Finish"]
