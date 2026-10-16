@@ -64,7 +64,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     if is_non_english(user_message):
         logger.info("Non-english message detected for session %s - short-circuiting", session_id)
         response = ChatResponse(
-            type = "error",
+            type = "non-english",
             message = NON_ENGLISH_RESPONSE_MESSAGE,
             risk_level = "low",
             end_session = False

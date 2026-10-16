@@ -4,7 +4,7 @@ export type ChatRequest = {
 };
 
 export type ChatResponse = {
-  type: "normal" | "crisis" | "error" | "boundary";
+  type: "normal" | "crisis" | "error" | "non-english"| "boundary";
   message: string;
   risk_level: "low" | "medium" | "high";
   end_session: boolean;
@@ -14,7 +14,7 @@ export type HistoryEntry = {
   session_id: string;
   user_message: string;
   system_message: string;
-  response_type: "normal" | "boundary" | "crisis" | "error";
+  response_type: "normal" | "boundary" | "crisis" | "error" | "non-english";
   risk_level: "low" | "medium" | "high";
   created_at: string;
 };

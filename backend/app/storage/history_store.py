@@ -8,7 +8,7 @@ from typing import Literal, TypedDict
 DB_PATH = Path(__file__).parent.parent.parent/"data"/"history.db"
 
 RiskLevel = Literal["low", "medium", "high"]
-ResponseType = Literal["normal", "boundary", "crisis", "error"]
+ResponseType = Literal["normal", "boundary", "crisis", "error", "non-english"]
 
 class HistoryEntry(TypedDict):
     id: int
@@ -41,7 +41,7 @@ def init_db() -> None:
                 session_id TEXT NOT NULL,
                 user_message TEXT NOT NULL,
                 system_message TEXT NOT NULL,
-                response_type TEXT NOT NULL CHECK (response_type IN ('normal', 'boundary', 'crisis', 'error')),
+                response_type TEXT NOT NULL CHECK (response_type IN ('normal', 'boundary', 'crisis', 'error', 'non-english')),
                 risk_level TEXT NOT NULL CHECK (risk_level IN ('low', 'medium', 'high')),
                 created_at TEXT NOT NULL
             )

@@ -80,6 +80,11 @@ export function useChatSession(sessionId: string) {
       if (data.end_session) {
         setCrisisTriggered(true);
       }
+      if (data.type === "non-english") {
+        setError(
+          data.message,
+        );
+      }
     } catch (err) {
       setError(
         "We couldn't generate a response right now. Please try again later. Sorry for the inconvenience.",
