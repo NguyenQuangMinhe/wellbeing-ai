@@ -103,7 +103,9 @@ test("delete history requires confirmation and clears the conversation", async (
 
   await page.getByRole("button", { name: "Delete" }).click();
   await page.waitForTimeout(2000);
-  await expect(page.getByText(/conversation history deleted/i)).toBeVisible({timeout: 10000});
+  await expect(page.getByText(/conversation history deleted/i)).toBeVisible({
+    timeout: 10000,
+  });
 
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByText("hello")).toHaveCount(0);
