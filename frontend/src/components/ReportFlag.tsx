@@ -36,7 +36,7 @@ export function ReportFlag({
     const report = {
       messageId,
       messageText,
-      reasons: selectedReasons,
+      category: selectedReasons,
       additional: comments.trim(),
     };
 

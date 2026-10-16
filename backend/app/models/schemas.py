@@ -16,5 +16,5 @@ class ChatResponse(BaseModel):
 class FeedbackRequest(BaseModel):
     message_id: str
     message_text: str
-    reasons: list[str] = Field(min_length=1)
+    category: list[str] = Field(min_length=1)
     additional: str = Field(default="", max_length=1000)

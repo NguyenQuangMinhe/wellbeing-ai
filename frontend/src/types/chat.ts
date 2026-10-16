@@ -30,6 +30,6 @@ export type ReportFlagProps = {
 export type FeedbackRequest = {
   messageId: string;
   messageText: string;
-  reasons: string[];
+  category: string[];
   additional: string;
 };

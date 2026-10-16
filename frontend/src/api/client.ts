@@ -29,7 +29,7 @@ export async function sendFeedback(
     body: JSON.stringify({
       message_id: feedback.messageId,
       message_text: feedback.messageText,
-      reasons: feedback.reasons,
+      category: feedback.category,
       additional: feedback.additional,
     }),
   });

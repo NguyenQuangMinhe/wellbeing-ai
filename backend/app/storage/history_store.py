@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -60,6 +61,19 @@ def init_db() -> None:
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                message_id TEXT NOT NULL,
+                flagged_message TEXT NOT NULL,
+                category TEXT NOT NULL,
+                comment TEXT,
+                created_at TEXT NOT NULL
+            );
+            """
+        )
 
 
 def add_entry(session_id: str, user_message: str, system_message: str, response_type: ResponseType, risk_level: RiskLevel) -> None:
@@ -94,6 +108,10 @@ def delete_history(session_id: str) -> int:
             "DELETE FROM sessions WHERE session_id = ?",
             (session_id,),
         )
+        conn.execute(
+            "DELETE FROM feedback WHERE session_id = ?",
+            (session_id,),
+        )
         return rows.rowcount
 
 #Stage functions to for traching which CBT conversation stage a session is in (706c)
@@ -116,6 +134,17 @@ def set_session_stage(session_id: str, stage: str) -> None:
                 stage = excluded.stage
             """,
             (session_id, stage),
+        )
+
+# Feedback functions to store user feedback on flagged messages
+def add_feedback(session_id: str, message_id: str, flagged_message: str, category: str, comment: str) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO feedback (session_id, message_id, flagged_message, category, comment, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (session_id, message_id, flagged_message, json.dumps(category), comment, datetime.now(timezone.utc).isoformat()),
         )
 
 # Session lock function, treats the session as terminated regardless of frontend local state

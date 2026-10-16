@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.control_plane import handle_message, MODEL_UNAVAILABLE_MESSAGE
 from app.models.schemas import ChatRequest, ChatResponse
-from app.storage.history_store import delete_history, get_history, init_db, is_session_locked
+from app.storage.history_store import delete_history, get_history, init_db, is_session_locked, add_feedback
 
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
 
@@ -52,7 +52,8 @@ async def post_message(request: ChatRequest) -> ChatResponse:
 @app.post("/api/feedback/{session_id}")
 async def post_feedback(session_id: str, feedback: dict):
     validate_session_id(session_id)
-    logger.info("Received feedback for session %s: %s", session_id, feedback)
+    add_feedback(session_id, feedback.get("message_id"), feedback.get("message_text"), feedback.get("category"), feedback.get("additional", ""))
+    print(f"Received feedback for session {session_id}: {feedback.get('category')} - {feedback.get('additional', '')}")
     return {"status": "success"}
 
 
