@@ -10,6 +10,7 @@ export async function sendMessage(payload: ChatRequest): Promise<ChatResponse> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+  console.log("sendMessage response:", response.body);
 
   if (!response.ok) {
     throw new Error(`Backend request failed: ${response.status}`);

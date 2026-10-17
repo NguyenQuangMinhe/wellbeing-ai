@@ -53,7 +53,6 @@ export function useChatSession(sessionId: string) {
   }, [sessionId]);
 
   async function send(text: string) {
-    setMessages((prev) => [...prev, { role: "user", text }]);
     setIsLoading(true);
     setError(null);
 
@@ -62,6 +61,10 @@ export function useChatSession(sessionId: string) {
         session_id: sessionId,
         message: text,
       });
+      if (data.type === "non-english") {
+        setError(data.message);
+        return;
+      }
       if (data.risk_level === "high") {
         if (data.type === "crisis") {
           setCrisisTriggered(true);
@@ -76,14 +79,9 @@ export function useChatSession(sessionId: string) {
           { role: "system", text: data.message, risk: data.risk_level },
         ]);
       }
-
+      setMessages((prev) => [...prev, { role: "user", text }]);
       if (data.end_session) {
         setCrisisTriggered(true);
-      }
-      if (data.type === "non-english") {
-        setError(
-          data.message,
-        );
       }
     } catch (err) {
       setError(

@@ -84,7 +84,7 @@ function App() {
     setInputText("");
   }
   // Long conversation
-  const showLongConversationReminder = messages.length >= 1;
+  const showLongConversationReminder = messages.length >= 8;
 
   async function handleConfirmDelete() {
     setDeleteStatus("loading");
