@@ -1,0 +1,67 @@
+[
+  {
+    "id": "q01",
+    "query": "How should the AI respond when someone wants to end the conversation?",
+    "relevant_section_ids": ["KB-02.7"]
+  },
+  {
+    "id": "q02",
+    "query": "What should happen if the AI detects a crisis?",
+    "relevant_section_ids": ["KB-03.2"]
+  },
+  {
+    "id": "q03",
+    "query": "How does the AI help someone identify unhelpful thinking patterns?",
+    "relevant_section_ids": ["KB-01.2", "KB-02.5"]
+  },
+  {
+    "id": "q04",
+    "query": "Can the AI diagnose a mental health condition or recommend medication?",
+    "relevant_section_ids": ["KB-03.3"]
+  },
+  {
+    "id": "q05",
+    "query": "What happens at the very start of a conversation with the AI?",
+    "relevant_section_ids": ["KB-02.1", "KB-02.2"]
+  },
+  {
+    "id": "q06",
+    "query": "Does the AI set goals or give homework for the user?",
+    "relevant_section_ids": ["KB-01.3"]
+  },
+  {
+    "id": "q07",
+    "query": "What tone should the AI use when talking with someone?",
+    "relevant_section_ids": ["KB-01.6"]
+  },
+  {
+    "id": "q08",
+    "query": "Is the knowledge base allowed to store a user's personal chat history or medical details?",
+    "relevant_section_ids": ["KB-03.4"]
+  },
+  {
+    "id": "q09",
+    "query": "How does the AI connect a person's thoughts, feelings, and actions?",
+    "relevant_section_ids": ["KB-01.1", "KB-02.4", "KB-02.6"]
+  },
+  {
+    "id": "q10",
+    "query": "What should the AI do if the person wants to talk about something that happened a long time ago?",
+    "relevant_section_ids": ["KB-01.4"]
+  },
+  {
+    "id": "q11",
+    "query": "Is this AI meant to replace therapy or a therapist?",
+    "relevant_section_ids": ["KB-01.5", "KB-03.1"]
+  },
+  {
+    "id": "q12",
+    "query": "How does the AI explore a specific recent situation with someone?",
+    "relevant_section_ids": ["KB-02.3"]
+  },
+  {
+    "id": "q13",
+    "query": "If someone picks a next step at the end of a chat, what should that look like?",
+    "relevant_section_ids": ["KB-02.8"]
+  }
+]
