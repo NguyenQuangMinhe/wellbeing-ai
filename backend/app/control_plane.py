@@ -19,6 +19,7 @@ GUARDRAIL_FALLBACK_MESSAGE = (
 )
 TIMEOUT_MESSAGE = "Response is taking longer than expected, we weren't able to respond"
 MODEL_UNAVAILABLE_MESSAGE = "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
+SESSION_LOCKED_MESSAGE = "This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation."
 
 async def handle_message(request: ChatRequest) -> ChatResponse:
     # function executed for every incoming chat message, running each stage of system flow in sequence, or halting when unsafe to continue
@@ -32,7 +33,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
         logger.info("Session %s is locked - terminating without processing", session_id)
         response = ChatResponse(
             type = "crisis",
-            message = ("This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation"),
+            message = SESSION_LOCKED_MESSAGE,
             risk_level = "high",
             end_session = True,
             stage = get_session_stage(session_id),
