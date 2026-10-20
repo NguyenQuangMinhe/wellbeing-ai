@@ -43,6 +43,7 @@ Use these as controlled scenarios for the local prototype. A response can differ
 **Trace:** US 1, AC 1.3; US 2, AC 2.1.
 
 ## 5. Invite elaboration without guessing the cause of a short message
+
 **User:** “Can't face class.”  
 **Expected example:** “It sounds like going to class feels difficult right now. Would you like to tell me what's making it hard to face?”  
 **Pass checks:** User input contains fewer than five words; provides an open invitation to elaborate; does not assume the difficulty is caused by anxiety, classmates, academic performance, tiredness, or another specific reason; does not provide generic advice before understanding the concern.  
@@ -498,3 +499,16 @@ Mapping: AC 7.3; AC 2.4; AC 9.1 and 9.3.
 **Expected assistant:** We can stop here.
 
 **State check:** Close as user-ended, not goal-achieved and no further questions.
+
+## Exact evidence checks for the eight conversations
+
+| Case       | Observable assertions                                                                                                                                                                                                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| START-01   | T1 Start. T2 B01: situation = Friday presentation and audience questions from T2; Explore. T3 thought = going blank and feeling = nervous from T3; action absent, so hold Explore. T4 action = avoiding practice from T4; B02 true, Reflect only.                                      |
+| START-02   | T2 classmate fact stored, mode listening, no B01 advancement. T3 explicit resume, fresh Start invitation, no situation-detail gate from permission alone. T4 same-topic event detail passes B01. No questions are emitted during T2 listening.                                         |
+| EXPLORE-01 | T1 feeling = left out; T2 thought = unwanted; action absent, hold Explore. T3 action = stopped checking/avoided discussion; B02 true. T4 alternative = busy, accepted by the user; consent absent, B03 false.                                                                          |
+| EXPLORE-02 | T2 topic changes from presentation to dinner; reset Start, retire presentation question, clear presentation gate evidence. T3 concrete dinner concern answers new Start invitation, B01 true. T4 mode listening overrides any possible progression.                                    |
+| REFLECT-01 | T2 evaluation = silence supports concern, exams offer another explanation; B03 false until consent. T3 explicit next-step request plus current T2 evaluation passes B03. T4 goal = ask if group saw message; timing = tomorrow's meeting; B04 true and closure_reason = goal_selected. |
+| REFLECT-02 | T2 evaluation absent and reflection declined; mode listening, B03 false. T3 current dinner offer = next Wednesday; tonight's disappointment retained. T4 summary only; no resumption, goal or stage advance.                                                                           |
+| FINISH-01  | T2 goal = ask one classmate if they saw message; timing absent, B04 false. T3 timing = tomorrow before group meeting; B04 true. T4 ending adds no question and does not reopen a closed conversation.                                                                                  |
+| FINISH-02  | T1 revokes goal consent; pause and no goal pressure. T2 listening. T3 reminder retains Friday and audience-question concern without a goal invitation. T4 mode closed and closure_reason = user_ended; no goal_selected claim.                                                         |

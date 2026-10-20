@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.control_plane import handle_message, MODEL_UNAVAILABLE_MESSAGE
 from app.models.schemas import ChatRequest, ChatResponse
-from app.storage.history_store import delete_history, get_history, init_db, is_session_locked, add_feedback
+from app.storage.history_store import delete_history, get_history, init_db, is_session_locked, add_feedback, get_session_stage
 
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
 
@@ -42,11 +42,16 @@ async def post_message(request: ChatRequest) -> ChatResponse:
         return await handle_message(request)
     except Exception:
         logger.exception("Unhandled error processing message for session %s", request.session_id)
+        try:
+            stage = get_session_stage(request.session_id)
+        except Exception:
+            stage = "Start"
         return ChatResponse(
             type="error",
             message=MODEL_UNAVAILABLE_MESSAGE,
             risk_level="low",
             end_session=False,
+            stage=stage,
         )
 # Mock
 @app.post("/api/feedback/{session_id}")

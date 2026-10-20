@@ -61,6 +61,19 @@ def init_db() -> None:
             )
             """
         )
+
+        # Migration guard; response to timeout errors due to the  `sessions` table being created before `stage` column existed
+        existing_columns = [
+            row["name"] for row in conn.execute("PRAGMA table_info(sessions)").fetchall()
+        ]
+        if "stage" not in existing_columns:
+            conn.execute(
+                """
+                ALTER TABLE sessions ADD COLUMN stage TEXT NOT NULL DEFAULT 'Start'
+                    CHECK (stage IN ('Start', 'Explore', 'Reflect', 'Finish'))
+                """
+            )
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS feedback (

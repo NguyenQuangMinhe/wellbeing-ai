@@ -19,6 +19,7 @@ GUARDRAIL_FALLBACK_MESSAGE = (
 )
 TIMEOUT_MESSAGE = "Response is taking longer than expected, we weren't able to respond"
 MODEL_UNAVAILABLE_MESSAGE = "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
+SESSION_LOCKED_MESSAGE = "This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation."
 
 async def handle_message(request: ChatRequest) -> ChatResponse:
     # function executed for every incoming chat message, running each stage of system flow in sequence, or halting when unsafe to continue
@@ -31,12 +32,11 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     if is_session_locked(session_id):
         logger.info("Session %s is locked - terminating without processing", session_id)
         response = ChatResponse(
-            type="crisis",
-            message = (
-                "This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation"
-            ),
+            type = "crisis",
+            message = SESSION_LOCKED_MESSAGE,
             risk_level = "high",
-            end_session = True
+            end_session = True,
+            stage = get_session_stage(session_id),
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
@@ -54,7 +54,8 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             type = "crisis",
             message = CRISIS_RESPONSE_MESSAGE,
             risk_level = "high",
-            end_session = True
+            end_session = True,
+            stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
@@ -67,7 +68,8 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             type = "non-english",
             message = NON_ENGLISH_RESPONSE_MESSAGE,
             risk_level = "low",
-            end_session = False
+            end_session = False,
+            stage = current_stage,
         )
         return response
 
@@ -80,7 +82,8 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             type="boundary",
             message = BOUNDARY_RESPONSE_MESSAGE,
             risk_level = "low",
-            end_session = False
+            end_session = False,
+            stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response 
@@ -96,16 +99,18 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             message = TIMEOUT_MESSAGE,
             risk_level = "low",
             end_session = False,
+            stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
     except httpx.ConnectError:
         logger.error("Stage: intent_classification | session=%s | MODEL UNAVAILABLE - could not reach Ollama", session_id)
         response = ChatResponse(
-            type="error",
+            type = "error",
             message = MODEL_UNAVAILABLE_MESSAGE,
-            risk_level="low",
-            end_session=False,
+            risk_level = "low",
+            end_session = False,
+            stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
@@ -128,16 +133,18 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             message = TIMEOUT_MESSAGE,
             risk_level = risk_level,
             end_session = False,
+            stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
     except httpx.ConnectError:
         logger.error("Stage: generation | session=%s | MODEL UNAVAILABLE - could not reach Ollama", session_id)
         response = ChatResponse(
-            type="error",
-            message= MODEL_UNAVAILABLE_MESSAGE,
-            risk_level=risk_level,
-            end_session=False,
+            type ="error",
+            message = MODEL_UNAVAILABLE_MESSAGE,
+            risk_level = risk_level,
+            end_session = False,
+            stage = current_stage
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
@@ -149,20 +156,22 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
     except httpx.ReadTimeout:
         logger.error("Stage: output_guardrail | session=%s | TIMEOUT - Ollama did not respond in time", session_id)
         response = ChatResponse(
-            type="error",
-            message=TIMEOUT_MESSAGE,
-            risk_level=risk_level,
-            end_session=False,
+            type = "error",
+            message = TIMEOUT_MESSAGE,
+            risk_level = risk_level,
+            end_session = False,
+            stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
     except httpx.ConnectError:
         logger.error("Stage: output_guardrail | session=%s | MODEL UNAVAILABLE - could not reach Ollama", session_id)
         response = ChatResponse(
-            type="error",
-            message=MODEL_UNAVAILABLE_MESSAGE,
-            risk_level=risk_level,
-            end_session=False,
+            type = "error",
+            message = MODEL_UNAVAILABLE_MESSAGE,
+            risk_level = risk_level,
+            end_session = False,
+            stage = current_stage
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
@@ -171,10 +180,11 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
         logger.info("Guardrail flagged unsafe output for session %s - routing to fallback", session_id)
         logger.error("Stage: output_guardrail | session=%s | UNSAFE output discarded, unsafe text not shown to user", session_id)
         response = ChatResponse(
-            type="error",
-            message=GUARDRAIL_FALLBACK_MESSAGE,
-            risk_level=risk_level,
-            end_session=False
+            type = "error",
+            message = GUARDRAIL_FALLBACK_MESSAGE,
+            risk_level = risk_level,
+            end_session = False,
+            stage = current_stage,
         )
     else:
         new_stage = evaluate_gate(current_stage, user_message)
@@ -182,10 +192,11 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             logger.info("Stage: gate_check | session=%s | advancing %s -> %s", session_id, current_stage, new_stage)
             set_session_stage(session_id, new_stage)
         response = ChatResponse(
-            type="normal",
-            message=generated_text,
-            risk_level=risk_level,
-            end_session=False
+            type = "normal",
+            message = generated_text,
+            risk_level = risk_level,
+            end_session = False,
+            stage = new_stage,
         )
     add_entry(session_id, user_message, response.message, response.type, response.risk_level)
     return response
