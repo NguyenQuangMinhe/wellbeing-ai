@@ -121,7 +121,7 @@ function App() {
           {/* Disclaimer */}
           <div className="sticky top-0 z-10 bg-gray-100 p-2 text-sm text-gray-600 text-center">
             <span className="font-semibold">Disclaimer: </span>
-            You are chatting with an AI, not a proffessional clinician
+            You are chatting with an AI, not a professional clinician
           </div>
 
           {/* Header / Delete History */}
@@ -132,7 +132,7 @@ function App() {
               aria-haspopup="menu"
               aria-label="open menu"
               aria-expanded={menuOpen}
-              className="rounded p-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+              className="rounded p-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -198,7 +198,7 @@ function App() {
                         type="button"
                         onClick={() => setDeleteStatus("idle")}
                         disabled={deleteStatus === "loading"}
-                        className="rounded p-2 text-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:opacity-50"
+                        className="rounded p-2 text-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 disabled:opacity-50"
                       >
                         Cancel
                       </button>
@@ -225,9 +225,9 @@ function App() {
           <div className="flex flex-1 flex-col overflow-y-auto p-4">
             {messages.length === 0 && !isLoading && (
               <div className="m-auto whitespace-pre-line text-center text-sm text-gray-600 font-bold">
-                {"\nThroughout our conversation I am unable to provide any medication advice,\n" +
-                  "diagnosis or crisis response. I am able to provide assistance to feelings,\n" +
-                  "thoughts and actions."}
+                {"\nThroughout our conversation I am able to provide assistance to feelings,\n" +
+                  "houghts and actions. I am unable to provide any medication advice,\n" +
+                  "diagnosis or crisis response."}
               </div>
             )}
 
@@ -259,15 +259,15 @@ function App() {
 
             {isLoading && !isTimedOut && (
               <div className="mb-2 flex justify-start">
-                <div className="flex flex-col gap-1 rounded-md bg-gray-100 p-2 text-sm text-gray-400">
+                <div className="flex flex-col gap-1 rounded-md bg-gray-100 p-2 text-sm text-gray-500">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-500 [animation-delay:-0.3s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-500 [animation-delay:-0.15s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-500" />
                   </div>
 
                   {messages.length === 1 && (
-                    <div className="ml-2 whitespace-pre-line">
+                    <div className="text-grey-600 ml-2 whitespace-pre-line">
                       Your first response may take a little longer...
                     </div>
                   )}
@@ -309,7 +309,7 @@ function App() {
               }}
               placeholder="Type a message…"
               rows={1}
-              className="flex-1 resize-none rounded-md border border-gray-300 p-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+              className="flex-1 resize-none rounded-md border border-gray-500 p-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
             />
             {/* Send Button */}
             <button

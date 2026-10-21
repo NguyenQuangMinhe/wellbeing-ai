@@ -74,12 +74,13 @@ export function useChatSession(sessionId: string) {
           setBoundaryMessage(data.message);
         }
       } else {
+        setMessages((prev) => [...prev, { role: "user", text }]);
         setMessages((prev) => [
           ...prev,
           { role: "system", text: data.message, risk: data.risk_level },
         ]);
       }
-      setMessages((prev) => [...prev, { role: "user", text }]);
+
       if (data.end_session) {
         setCrisisTriggered(true);
       }

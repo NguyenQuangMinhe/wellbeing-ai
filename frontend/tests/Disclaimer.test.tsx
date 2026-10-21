@@ -27,7 +27,7 @@ describe("Disclaimer", () => {
     render(<App />);
     expect(await screen.findByText(/Disclaimer:/)).toBeInTheDocument();
     expect(
-      screen.getByText(/not a proffessional clinician/i),
+      screen.getByText(/not a professional clinician/i),
     ).toBeInTheDocument();
   });
 

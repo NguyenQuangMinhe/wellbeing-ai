@@ -23,8 +23,6 @@ export type ReportFlagProps = {
   sessionId: string;
   messageId: string;
   messageText: string;
-  // reasons: string[];
-  // additional: string;
 };
 
 export type FeedbackRequest = {

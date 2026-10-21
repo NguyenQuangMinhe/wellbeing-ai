@@ -1,4 +1,3 @@
-## TODO: Same pattern as crisis_keywords.py, but for boundary responses.
 import re
 
 DIAGNOSIS_PATTERNS = [

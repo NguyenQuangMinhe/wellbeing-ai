@@ -58,7 +58,6 @@ async def post_message(request: ChatRequest) -> ChatResponse:
 async def post_feedback(session_id: str, feedback: dict):
     validate_session_id(session_id)
     add_feedback(session_id, feedback.get("message_id"), feedback.get("message_text"), feedback.get("category"), feedback.get("additional", ""))
-    print(f"Received feedback for session {session_id}: {feedback.get('category')} - {feedback.get('additional', '')}")
     return {"status": "success"}
 
 
