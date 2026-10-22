@@ -63,9 +63,7 @@ describe("LongConversationReminder", () => {
   });
 
   it("shows the reminder when visible changes from false to true", () => {
-    const { rerender } = render(
-      <LongConversationReminder visible={false} />,
-    );
+    const { rerender } = render(<LongConversationReminder visible={false} />);
 
     expect(
       screen.queryByRole("button", {

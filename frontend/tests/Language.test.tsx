@@ -5,8 +5,7 @@ import * as client from "../src/api/client";
 import App from "../src/App";
 
 vi.mock("../src/api/client", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("../src/api/client")>();
+  const actual = await importOriginal<typeof import("../src/api/client")>();
 
   return {
     ...actual,
@@ -79,7 +78,7 @@ it("shows a warning", async () => {
     await user.click(acknowledge);
   }
 
-  const rejectedMessage ="Tôi cảm thấy rất căng thẳng về việc học đại học.";
+  const rejectedMessage = "Tôi cảm thấy rất căng thẳng về việc học đại học.";
 
   const input = screen.getByPlaceholderText(/type a message/i);
   await user.type(input, rejectedMessage);
@@ -89,6 +88,8 @@ it("shows a warning", async () => {
     await screen.findByText(/only able to support english/i),
   ).toBeInTheDocument();
   expect(
-    screen.queryByText("I'm currently only able to support English. Please share your thoughts and feelings in English, and I'll do my best to help."),
+    screen.queryByText(
+      "I'm currently only able to support English. Please share your thoughts and feelings in English, and I'll do my best to help.",
+    ),
   ).toBeInTheDocument();
 });
