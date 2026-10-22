@@ -12,11 +12,8 @@ function renderReportFlag() {
       messageText="Test message"
     />,
   );
-  fireEvent.click(
-  screen.getByRole("button", { name: "Report message" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "Report message" }));
   return result;
-
 }
 
 describe("toggleReason", () => {
@@ -115,30 +112,26 @@ describe("ReportFlag submission", () => {
   it("submits a report with an empty description", async () => {
     const sendFeedbackSpy = vi
       .spyOn(client, "sendFeedback")
-      .mockResolvedValue({"status": "success"});
+      .mockResolvedValue({ status: "success" });
 
     renderReportFlag();
 
     // Select a reason
-    fireEvent.click(
-      screen.getByRole("checkbox", { name: "Unhelpful" }),
-    );
+    fireEvent.click(screen.getByRole("checkbox", { name: "Unhelpful" }));
 
     // Leave the description empty and submit
-    fireEvent.click(
-      screen.getByRole("button", { name: /submit report/i }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: /submit report/i }));
 
     await waitFor(() => {
       expect(sendFeedbackSpy).toHaveBeenCalledWith(
-          "test-session",
-          expect.objectContaining({
-            messageId: "test-message",
-            messageText: "Test message",
-            category: ["Unhelpful"],
-            additional: "",
-          }),
-        );
+        "test-session",
+        expect.objectContaining({
+          messageId: "test-message",
+          messageText: "Test message",
+          category: ["Unhelpful"],
+          additional: "",
+        }),
+      );
     });
   });
 

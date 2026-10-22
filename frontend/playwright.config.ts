@@ -1,5 +1,4 @@
 import { defineConfig, devices } from "@playwright/test";
-
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -13,7 +12,8 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./tests/e2e",
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,

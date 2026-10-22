@@ -10,12 +10,12 @@ describe("Delete history flow", () => {
     vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false });
   });
   async function acknowledgeGate(user: ReturnType<typeof userEvent.setup>) {
-  const button = screen.queryByRole("button", { name: /i understand/i });
+    const button = screen.queryByRole("button", { name: /i understand/i });
 
-  if (button) {
-    await user.click(button);
+    if (button) {
+      await user.click(button);
+    }
   }
-}
 
   async function openDeleteConfirmation(
     user: ReturnType<typeof userEvent.setup>,
@@ -75,7 +75,7 @@ describe("Delete history flow", () => {
     expect(
       screen.queryByText(/conversation history deleted/i),
     ).not.toBeInTheDocument();
-    await acknowledgeGate(user)
+    await acknowledgeGate(user);
 
     // session remains usable: can still type and send after deletion
     const input = screen.getByPlaceholderText(/type a message/i);

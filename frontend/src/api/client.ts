@@ -21,7 +21,7 @@ export async function sendMessage(payload: ChatRequest): Promise<ChatResponse> {
 export async function sendFeedback(
   sessionId: string,
   feedback: FeedbackRequest,
-): Promise<{"status": "success"}> {
+): Promise<{ status: "success" }> {
   const response = await fetch(`${API_BASE_URL}/api/feedback/${sessionId}`, {
     method: "POST",
     headers: {

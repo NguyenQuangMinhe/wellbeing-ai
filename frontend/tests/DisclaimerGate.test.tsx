@@ -10,13 +10,15 @@ describe("First-run disclaimer gate", () => {
     // runs after the global setup that pre-acknowledges, so this file starts at "first run"
     localStorage.clear();
     vi.spyOn(client, "getHistory").mockResolvedValue([]);
-    vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false});
+    vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false });
   });
 
   it("shows the gate on first run", async () => {
     render(<App />);
-    expect(await screen.findByText(/before proceeding/i )).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /i understand/i })).toBeInTheDocument();
+    expect(await screen.findByText(/before proceeding/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /i understand/i }),
+    ).toBeInTheDocument();
   });
 
   it("blocks the conversation until acknowledged", async () => {
@@ -48,7 +50,9 @@ describe("First-run disclaimer gate", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(await screen.findByRole("button", { name: /i understand/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /i understand/i }),
+    );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(localStorage.getItem(DISCLAIMER_STORAGE_KEY)).toBe(

@@ -6,6 +6,8 @@ import { TakeoverScreen } from "./components/Takeover";
 import { DisclaimerGate } from "./components/DisclaimerGate";
 import { useDisclaimerAck } from "./hooks/useDisclaimerAckn";
 
+import { getSessionStatus } from "./api/client";
+
 import { ReportFlag } from "./components/ReportFlag";
 import { LongConversationReminder } from "./components/LongConversationReminder";
 
@@ -30,6 +32,31 @@ function App() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isTimedOut, setIsTimedOut] = useState(false);
+
+  const [sessionLocked, setSessionLocked] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkSessionStatus() {
+      try {
+        const status = await getSessionStatus(sessionId);
+
+        if (!cancelled) {
+          setSessionLocked(status.locked);
+        }
+      } catch {
+        if (!cancelled) {
+          setSessionLocked(false);
+        }
+      }
+    }
+
+    checkSessionStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
 
   const {
     messages,
@@ -157,6 +184,7 @@ function App() {
                 <button
                   type="button"
                   role="menuitem"
+                  disabled={isLoading && !sessionLocked}
                   onClick={() => {
                     setMenuOpen(false);
                     setDeleteStatus("confirming");

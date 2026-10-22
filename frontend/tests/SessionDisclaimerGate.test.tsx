@@ -12,7 +12,7 @@ describe("Disclaimer gate and fresh conversations", () => {
     // runs after the global setup, so each test controls its own session state
     localStorage.clear();
     vi.spyOn(client, "getHistory").mockResolvedValue([]);
-    vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false});
+    vi.spyOn(client, "getSessionStatus").mockResolvedValue({ locked: false });
   });
 
   it("does not reappear when the same conversation is reopened", async () => {
@@ -65,10 +65,14 @@ describe("Disclaimer gate and fresh conversations", () => {
     await user.click(await screen.findByRole("button", { name: "Done" }));
     await screen.findByText(/before proceeding/i);
 
-    expect(screen.getByPlaceholderText(/type a message/i).closest("[inert]")).not.toBeNull();
+    expect(
+      screen.getByPlaceholderText(/type a message/i).closest("[inert]"),
+    ).not.toBeNull();
 
     await user.click(screen.getByRole("button", { name: /i understand/i }));
     expect(screen.queryByText(/before proceeding/i)).not.toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/type a message/i).closest("[inert]")).toBeNull();
+    expect(
+      screen.getByPlaceholderText(/type a message/i).closest("[inert]"),
+    ).toBeNull();
   });
 });
