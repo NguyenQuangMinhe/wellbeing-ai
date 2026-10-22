@@ -7,9 +7,9 @@ async function acknowledgeGate(page: Page) {
   await expect(button).toBeVisible({ timeout: 5000 });
   await button.click();
 
-  await expect(
-    page.getByPlaceholder(/type a message/i),
-  ).toBeEnabled({ timeout: 5000 });
+  await expect(page.getByPlaceholder(/type a message/i)).toBeEnabled({
+    timeout: 5000,
+  });
 }
 
 async function debugPage(page: Page, label = "Page debug") {
@@ -23,23 +23,28 @@ async function debugPage(page: Page, label = "Page debug") {
   console.log("HTML:");
   console.log((await page.locator("body").innerHTML()).slice(0, 15000));
 
-  console.log("Textarea state:", await page.locator("textarea").evaluateAll(
-    elements => elements.map(el => ({
-      placeholder: (el as HTMLTextAreaElement).placeholder,
-      disabled: (el as HTMLTextAreaElement).disabled,
-      value: (el as HTMLTextAreaElement).value,
-    }))
-  ));
+  console.log(
+    "Textarea state:",
+    await page.locator("textarea").evaluateAll((elements) =>
+      elements.map((el) => ({
+        placeholder: (el as HTMLTextAreaElement).placeholder,
+        disabled: (el as HTMLTextAreaElement).disabled,
+        value: (el as HTMLTextAreaElement).value,
+      })),
+    ),
+  );
 
   console.log("Buttons:", await page.getByRole("button").allTextContents());
 
-  console.log("Session ID:", await page.evaluate(
-    () => localStorage.getItem("wellbeing_session_id")
-  ));
+  console.log(
+    "Session ID:",
+    await page.evaluate(() => localStorage.getItem("wellbeing_session_id")),
+  );
 
-  console.log("Disclaimer acknowledgement:", await page.evaluate(
-    () => localStorage.getItem("wellbeing_disclaimer_ack")
-  ));
+  console.log(
+    "Disclaimer acknowledgement:",
+    await page.evaluate(() => localStorage.getItem("wellbeing_disclaimer_ack")),
+  );
 
   console.log(`========== End ${label} ==========\n`);
 }
@@ -138,7 +143,9 @@ test("boundary request (medication) does not trigger the crisis overlay", async 
   await expect(page.getByText("You deserve support right now")).toHaveCount(0);
 });
 
-test("delete history requires confirmation and clears the conversation", async ({page}) => {
+test("delete history requires confirmation and clears the conversation", async ({
+  page,
+}) => {
   await page.route("**/api/message", async (route) => {
     await route.fulfill({
       status: 200,
@@ -170,7 +177,6 @@ test("delete history requires confirmation and clears the conversation", async (
   await expect(page.getByText("hello")).toBeVisible();
   await expect(page.getByText("Mock assistant reply")).toBeVisible();
 
-
   await page.getByRole("button", { name: /open menu/i }).click();
   const deleteHistoryItem = page.getByRole("menuitem", {
     name: /delete history/i,
@@ -199,9 +205,7 @@ test("delete history requires confirmation and clears the conversation", async (
   await input.fill("starting fresh");
   await page.getByRole("button", { name: "Send" }).click();
   await expect(page.getByText("starting fresh")).toBeVisible();
-}, 
-);
-
+});
 
 // test("diagnose WebKit message request", async ({ page }) => {
 //   page.on("console", (message) => {
