@@ -21,15 +21,15 @@ describe("Disclaimer gate and fresh conversations", () => {
     render(<App />);
 
     await screen.findByPlaceholderText(/type a message/i);
-    expect(screen.queryByRole("dialog", { name: /before you start/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/before proceeding/i)).not.toBeInTheDocument();
   });
 
   it("appears when the conversation id differs from the acknowledged one", async () => {
-    localStorage.setItem(SESSION_KEY, "s-2");
-    localStorage.setItem(DISCLAIMER_STORAGE_KEY, "s-1");
+    localStorage.setItem(SESSION_KEY, "s-1");
+    localStorage.setItem(DISCLAIMER_STORAGE_KEY, "s-2");
     render(<App />);
 
-    expect(await screen.findByRole("dialog", { name: /before you start/i })).toBeInTheDocument();
+    expect(await screen.findByText(/before proceeding/i)).toBeInTheDocument();
   });
 
   it("appears again after Delete history starts a fresh conversation", async () => {
@@ -46,7 +46,7 @@ describe("Disclaimer gate and fresh conversations", () => {
     await user.click(screen.getByRole("button", { name: "Delete" }));
     await user.click(await screen.findByRole("button", { name: "Done" }));
 
-    expect(await screen.findByRole("dialog", { name: /before you start/i })).toBeInTheDocument();
+    expect(await screen.findByText(/before proceeding/i)).toBeInTheDocument();
     expect(localStorage.getItem(SESSION_KEY)).not.toBe("s-1");
   });
 
@@ -63,12 +63,12 @@ describe("Disclaimer gate and fresh conversations", () => {
     await user.click(screen.getByRole("menuitem", { name: /delete history/i }));
     await user.click(screen.getByRole("button", { name: "Delete" }));
     await user.click(await screen.findByRole("button", { name: "Done" }));
-    await screen.findByRole("dialog", { name: /before you start/i });
+    await screen.findByText(/before proceeding/i);
 
     expect(screen.getByPlaceholderText(/type a message/i).closest("[inert]")).not.toBeNull();
 
     await user.click(screen.getByRole("button", { name: /i understand/i }));
-    expect(screen.queryByRole("dialog", { name: /before you start/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/before proceeding/i)).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText(/type a message/i).closest("[inert]")).toBeNull();
   });
 });

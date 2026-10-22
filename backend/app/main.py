@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
 from app.control_plane import handle_message, MODEL_UNAVAILABLE_MESSAGE
-from app.models.schemas import ChatRequest, ChatResponse
+from app.models.schemas import ChatRequest, ChatResponse, FeedbackRequest
 from app.storage.history_store import delete_history, get_history, init_db, is_session_locked, add_feedback, get_session_stage
 
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
@@ -55,9 +55,9 @@ async def post_message(request: ChatRequest) -> ChatResponse:
         )
 # Mock
 @app.post("/api/feedback/{session_id}")
-async def post_feedback(session_id: str, feedback: dict):
+async def post_feedback(session_id: str, feedback: FeedbackRequest):
     validate_session_id(session_id)
-    add_feedback(session_id, feedback.get("message_id"), feedback.get("message_text"), feedback.get("category"), feedback.get("additional", ""))
+    add_feedback(session_id, feedback.message_id, feedback.message_text, feedback.category, feedback.additional)
     return {"status": "success"}
 
 

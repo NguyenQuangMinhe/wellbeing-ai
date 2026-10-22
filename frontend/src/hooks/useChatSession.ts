@@ -56,6 +56,8 @@ export function useChatSession(sessionId: string) {
     setIsLoading(true);
     setError(null);
 
+    setMessages((prev) => [...prev, { role: "user", text }]);
+
     try {
       const data: ChatResponse = await sendMessage({
         session_id: sessionId,
@@ -74,7 +76,6 @@ export function useChatSession(sessionId: string) {
           setBoundaryMessage(data.message);
         }
       } else {
-        setMessages((prev) => [...prev, { role: "user", text }]);
         setMessages((prev) => [
           ...prev,
           { role: "system", text: data.message, risk: data.risk_level },

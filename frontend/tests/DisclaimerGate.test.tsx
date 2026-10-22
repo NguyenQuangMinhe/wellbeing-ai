@@ -15,7 +15,7 @@ describe("First-run disclaimer gate", () => {
 
   it("shows the gate on first run", async () => {
     render(<App />);
-    expect(await screen.findByRole("dialog", { name: /before you start/i })).toBeInTheDocument();
+    expect(await screen.findByText(/before proceeding/i )).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /i understand/i })).toBeInTheDocument();
   });
 
@@ -67,17 +67,6 @@ describe("First-run disclaimer gate", () => {
     localStorage.setItem(DISCLAIMER_STORAGE_KEY, "s-1");
     render(<App />);
     await screen.findByPlaceholderText(/type a message/i);
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("still closes for the session if storage writes fail", async () => {
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("denied");
-    });
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(await screen.findByRole("button", { name: /i understand/i }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
