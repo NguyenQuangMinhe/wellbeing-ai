@@ -23,6 +23,7 @@ class HistoryEntry(TypedDict):
 def get_connection():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.row_factory = sqlite3.Row
     try:
         yield conn
@@ -33,64 +34,22 @@ def get_connection():
     finally:
         conn.close()
 
+SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+
 def init_db() -> None:
     with get_connection() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id TEXT NOT NULL,
-                user_message TEXT NOT NULL,
-                system_message TEXT NOT NULL,
-                response_type TEXT NOT NULL CHECK (response_type IN ('normal', 'boundary', 'crisis', 'error', 'non-english')),
-                risk_level TEXT NOT NULL CHECK (risk_level IN ('low', 'medium', 'high')),
-                created_at TEXT NOT NULL
-            )
-            """
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_session_id ON history(session_id)"
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS sessions (
-                session_id TEXT PRIMARY KEY,
-                locked INTEGER NOT NULL DEFAULT 0,
-                locked_at TEXT,
-                stage TEXT NOT NULL DEFAULT 'Start'
-                    CHECK (stage IN ('Start', 'Explore', 'Reflect', 'Finish'))
-            )
-            """
-        )
-
-        # Migration guard; response to timeout errors due to the  `sessions` table being created before `stage` column existed
-        existing_columns = [
-            row["name"] for row in conn.execute("PRAGMA table_info(sessions)").fetchall()
-        ]
-        if "stage" not in existing_columns:
-            conn.execute(
-                """
-                ALTER TABLE sessions ADD COLUMN stage TEXT NOT NULL DEFAULT 'Start'
-                    CHECK (stage IN ('Start', 'Explore', 'Reflect', 'Finish'))
-                """
-            )
-
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS feedback (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id TEXT NOT NULL,
-                message_id TEXT NOT NULL,
-                flagged_message TEXT NOT NULL,
-                category TEXT NOT NULL,
-                comment TEXT,
-                created_at TEXT NOT NULL
-            );
-            """
-        )
+        conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
 def add_entry(session_id: str, user_message: str, system_message: str, response_type: ResponseType, risk_level: RiskLevel) -> None:
     with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO sessions (session_id) VALUES (?)
+            ON CONFLICT(session_id) DO NOTHING;
+            """,
+            (session_id,),
+        )
         conn.execute(
             """
             INSERT INTO history (session_id, user_message, system_message, response_type, risk_level, created_at)
@@ -114,18 +73,17 @@ def get_history(session_id: str) -> list[HistoryEntry]:
 def delete_history(session_id: str) -> int:
     with get_connection() as conn:
         rows = conn.execute(
-            "DELETE FROM history WHERE session_id = ?",
+            """
+            SELECT COUNT(*) FROM history WHERE session_id = ?;
+            """,
             (session_id,),
-        )
+        ).fetchone()
+        deleted_count = rows[0]
         conn.execute(
             "DELETE FROM sessions WHERE session_id = ?",
             (session_id,),
         )
-        conn.execute(
-            "DELETE FROM feedback WHERE session_id = ?",
-            (session_id,),
-        )
-        return rows.rowcount
+        return deleted_count
 
 #Stage functions to for traching which CBT conversation stage a session is in (706c)
 def get_session_stage(session_id: str) -> str:
@@ -152,6 +110,13 @@ def set_session_stage(session_id: str, stage: str) -> None:
 # Feedback functions to store user feedback on flagged messages
 def add_feedback(session_id: str, message_id: str, flagged_message: str, category: str, comment: str) -> None:
     with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO sessions (session_id) VALUES (?)
+            ON CONFLICT(session_id) DO NOTHING;
+            """,
+            (session_id,),
+        )
         conn.execute(
             """
             INSERT INTO feedback (session_id, message_id, flagged_message, category, comment, created_at)
