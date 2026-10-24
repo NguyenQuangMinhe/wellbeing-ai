@@ -501,7 +501,6 @@ Mapping: AC 7.3; AC 2.4; AC 9.1 and 9.3.
 **State check:** Close as user-ended, not goal-achieved and no further questions.
 
 ## Exact evidence checks for the eight conversations
-
 | Case       | Observable assertions                                                                                                                                                                                                                                                                  |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | START-01   | T1 Start. T2 B01: situation = Friday presentation and audience questions from T2; Explore. T3 thought = going blank and feeling = nervous from T3; action absent, so hold Explore. T4 action = avoiding practice from T4; B02 true, Reflect only.                                      |
