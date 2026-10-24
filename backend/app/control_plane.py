@@ -1,8 +1,8 @@
 import logging
 import httpx
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
-from app.classifier.stage_gate import evaluate_gate
-from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
+from app.classifier.stage_gate import evaluate_gate, detect_decline, detect_close
+from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE, get_boundary_response
 from app.classifier.intent_classifier import classify_intent
 from app.classifier.output_check import check_output
 from app.llm.generator import generate_response
@@ -94,17 +94,18 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
 
     #Stage 1.2: Boundary Check
     logger.info("Stage: boundary_check | session=%s", session_id)
-    if detect_boundary(user_message):
+    boundary_message = get_boundary_response(user_message)
+    if boundary_message is not None:
         logger.info("Boundary match for session %s", session_id)
         response = ChatResponse(
             type="boundary",
-            message = BOUNDARY_RESPONSE_MESSAGE,
+            message = boundary_message,
             risk_level = "low",
             end_session = False,
             stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
-        return response 
+        return response
 
     # Stage 2: Intent Classification
     logger.info("Stage: intent_classification | session=%s", session_id)
