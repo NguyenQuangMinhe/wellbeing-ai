@@ -89,6 +89,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             end_session = False,
             stage = current_stage,
         )
+        add_entry(session_id, user_message, response.message, response.type, response.risk_level)
         return response
 
 
