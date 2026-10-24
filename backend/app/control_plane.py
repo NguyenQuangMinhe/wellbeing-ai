@@ -7,7 +7,10 @@ from app.classifier.intent_classifier import classify_intent
 from app.classifier.output_check import check_output
 from app.llm.generator import generate_response
 from app.rag.retriever import assemble_prompt
-from app.storage.history_store import add_entry, is_session_locked, set_session_locked, init_db, get_session_stage, set_session_stage
+from app.storage.history_store import (
+    add_entry, is_session_locked, set_session_locked, init_db, get_session_stage, set_session_stage, get_history, 
+    increment_turn_count, get_last_reminder_turn, set_last_reminder_turn,
+)
 from app.models.schemas import ChatRequest, ChatResponse
 from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
 
@@ -20,6 +23,14 @@ GUARDRAIL_FALLBACK_MESSAGE = (
 TIMEOUT_MESSAGE = "Response is taking longer than expected, we weren't able to respond"
 MODEL_UNAVAILABLE_MESSAGE = "We couldn't generate a response right now. Please try again later, sorry for the inconvenience."
 SESSION_LOCKED_MESSAGE = "This session has been ended for your safety. Please reach out to a crisis service directly, or start a new conversation."
+
+
+# Over-reliance reminders. First reminder once a session reaches RELIANCE_REMINDER_THRESHOLD turns (20), then again every 
+# RELIANCE_REMINDER_PERIOD turns after that (20, 30, 40, ...). 
+# MAX_HISTORY_TURNS (retriever.py) already treats 10 turns as the "recent context" window, so this sits above normal usage 
+# while still catching a long single-use session.
+RELIANCE_REMINDER_THRESHOLD = 20
+RELIANCE_REMINDER_PERIOD = 10
 
 async def handle_message(request: ChatRequest) -> ChatResponse:
     # function executed for every incoming chat message, running each stage of system flow in sequence, or halting when unsafe to continue
@@ -44,6 +55,13 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
      # Stage 0: Read current conversation stage
     current_stage = get_session_stage(session_id)
     logger.info("Stage: stage_read | session=%s | stage=%s", session_id, current_stage)
+    #increment and evaluate the reminder counter for this turn
+    turn_count = increment_turn_count(session_id)
+    last_reminder_turn = get_last_reminder_turn(session_id)
+    show_reminder = (
+        turn_count >= RELIANCE_REMINDER_THRESHOLD
+        and (turn_count - last_reminder_turn) >= RELIANCE_REMINDER_PERIOD
+    )
 
     #Stage 1.1: Crisis keyword check 
     logger.info("Stage: crisis_keywords | session=%s", session_id)
@@ -119,7 +137,7 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
 
     #Stage 3: Prompt Assembly (RAG + conversational history + system prompt)
     logger.info("Stage: prompt_assembly | session=%s", session_id)
-    prompt = assemble_prompt(session_id, user_message, risk_level, current_stage)
+    prompt = assemble_prompt(session_id, user_message, risk_level, current_stage, show_reminder)
     print(f"[DEBUG] Moderate-risk instruction in prompt: {'classified as moderate risk' in prompt}")
 
     #Stage 4: Generation
@@ -187,16 +205,26 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             stage = current_stage,
         )
     else:
-        new_stage = evaluate_gate(current_stage, user_message)
+        history = get_history(session_id)
+        previous_user_message = None
+        for entry in reversed(history):
+            if not detect_decline(entry["user_message"]) and not detect_close(entry["user_message"]):
+                previous_user_message = entry["user_message"]
+                break
+        new_stage = evaluate_gate(current_stage, user_message, previous_user_message)
         if new_stage != current_stage:
             logger.info("Stage: gate_check | session=%s | advancing %s -> %s", session_id, current_stage, new_stage)
             set_session_stage(session_id, new_stage)
+        if show_reminder:
+            logger.info("Reliance reminder shown for session %s at turn %s", session_id, turn_count)
+            set_last_reminder_turn(session_id, turn_count)
         response = ChatResponse(
             type = "normal",
             message = generated_text,
             risk_level = risk_level,
             end_session = False,
             stage = new_stage,
+            reminder = show_reminder,
         )
     add_entry(session_id, user_message, response.message, response.type, response.risk_level)
     return response

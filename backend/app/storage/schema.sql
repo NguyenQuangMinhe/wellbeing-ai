@@ -1,11 +1,13 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS sessions (
-    session_id TEXT PRIMARY KEY NOT NULL,
-    locked     INTEGER NOT NULL DEFAULT 0 CHECK (locked IN (0, 1)),
-    locked_at  TEXT,
-    stage      TEXT NOT NULL DEFAULT 'Start'
-               CHECK (stage IN ('Start', 'Explore', 'Reflect', 'Finish'))
+    session_id          TEXT PRIMARY KEY NOT NULL,
+    locked              INTEGER NOT NULL DEFAULT 0 CHECK (locked IN (0, 1)),
+    locked_at           TEXT,
+    stage               TEXT NOT NULL DEFAULT 'Start'
+                        CHECK (stage IN ('Start', 'Explore', 'Reflect', 'Finish')),
+    turn_count          INTEGER NOT NULL DEFAULT 0,
+    last_reminder_turn  INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS history (
