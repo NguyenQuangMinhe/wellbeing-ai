@@ -249,7 +249,7 @@ async def test_long_non_english_message_blocked():
 
     history = get_history(session_id)
     assert len(history) == 1
-    assert history[0]["response_type"] == "error"
+    assert history[0]["response_type"] == "non-english"
 
 @pytest.mark.asyncio
 async def test_normal_safe_response_advances_stage():
