@@ -206,3 +206,40 @@ def test_assemble_prompt_moderate_risk_instruction_still_conditional_with_stage(
 
     assert "classified as moderate risk" in prompt_medium
     assert "classified as moderate risk" not in prompt_low
+
+
+@pytest.mark.parametrize("stage", VALID_STAGES)
+@patch("app.rag.retriever.get_collection")
+@patch("app.rag.retriever.embedding_model")
+def test_assemble_prompt_includes_us9_rules_for_every_stage(mock_embedding_model, mock_get_collection, stage):
+    # checklist: "US 9 rules integrated into assembled prompts for all four stages" load_system_prompt() returns the full markdown block regardless of
+    # `stage`, so rule 23 (decline/topic-change/close overrides) should never be dropped no matter which stage is current.
+    mock_embedding_model.get_text_embedding.return_value = [0.1, 0.2, 0.3]
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {"ids": [[]], "documents": [[]], "metadatas": [[]]}
+    mock_get_collection.return_value = mock_collection
+
+    session_id = f"test-{uuid.uuid4()}"
+    prompt = assemble_prompt(session_id, "test message", "low", stage)
+
+    # Distinctive substrings from rule 23 itself, so this test breaks loudly if the clause is ever reworded or dropped, rather than passing silently.
+    assert "overrides normal sequencing immediately" in prompt  # decline/topic-change/close trigger
+    assert "close briefly without another question" in prompt   # AC 9.3: no follow-up on close
+
+
+@pytest.mark.parametrize("stage", VALID_STAGES)
+@patch("app.rag.retriever.get_collection")
+@patch("app.rag.retriever.embedding_model")
+def test_assemble_prompt_stage_section_coexists_with_close_rule(mock_embedding_model, mock_get_collection, stage):
+    # checklist: "stage sections do not override the close behaviour" confirms the stage-specific CBT-focus rule (18/20/22/25) for the
+    # current stage and rule 23's close behaviour are both present together, i.e. neither crowds the other out for any stage.
+    mock_embedding_model.get_text_embedding.return_value = [0.1, 0.2, 0.3]
+    mock_collection = MagicMock()
+    mock_collection.query.return_value = {"ids": [[]], "documents": [[]], "metadatas": [[]]}
+    mock_get_collection.return_value = mock_collection
+
+    session_id = f"test-{uuid.uuid4()}"
+    prompt = assemble_prompt(session_id, "test message", "low", stage)
+
+    assert f"Current stage: {stage}" in prompt
+    assert "If they ask to end, close briefly" in prompt

@@ -1,13 +1,13 @@
 import logging
 import httpx
 from app.classifier.crisis_keywords import detect_crisis, CRISIS_RESPONSE_MESSAGE
-from app.classifier.stage_gate import evaluate_gate
-from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE
+from app.classifier.stage_gate import evaluate_gate, detect_decline, detect_close
+from app.classifier.boundary_responses import detect_boundary, BOUNDARY_RESPONSE_MESSAGE, get_boundary_response
 from app.classifier.intent_classifier import classify_intent
 from app.classifier.output_check import check_output
 from app.llm.generator import generate_response
 from app.rag.retriever import assemble_prompt
-from app.storage.history_store import add_entry, is_session_locked, set_session_locked, init_db, get_session_stage, set_session_stage
+from app.storage.history_store import add_entry, is_session_locked, set_session_locked, init_db, get_session_stage, set_session_stage, get_history
 from app.models.schemas import ChatRequest, ChatResponse
 from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
 
@@ -77,17 +77,18 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
 
     #Stage 1.2: Boundary Check
     logger.info("Stage: boundary_check | session=%s", session_id)
-    if detect_boundary(user_message):
+    boundary_message = get_boundary_response(user_message)
+    if boundary_message is not None:
         logger.info("Boundary match for session %s", session_id)
         response = ChatResponse(
             type="boundary",
-            message = BOUNDARY_RESPONSE_MESSAGE,
+            message = boundary_message,
             risk_level = "low",
             end_session = False,
             stage = current_stage,
         )
         add_entry(session_id, user_message, response.message, response.type, response.risk_level)
-        return response 
+        return response
 
     # Stage 2: Intent Classification
     logger.info("Stage: intent_classification | session=%s", session_id)
@@ -188,7 +189,13 @@ async def handle_message(request: ChatRequest) -> ChatResponse:
             stage = current_stage,
         )
     else:
-        new_stage = evaluate_gate(current_stage, user_message)
+        history = get_history(session_id)
+        previous_user_message = None
+        for entry in reversed(history):
+            if not detect_decline(entry["user_message"]) and not detect_close(entry["user_message"]):
+                previous_user_message = entry["user_message"]
+                break
+        new_stage = evaluate_gate(current_stage, user_message, previous_user_message)
         if new_stage != current_stage:
             logger.info("Stage: gate_check | session=%s | advancing %s -> %s", session_id, current_stage, new_stage)
             set_session_stage(session_id, new_stage)
