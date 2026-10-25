@@ -6,7 +6,7 @@ import httpx
 
 from app.control_plane import handle_message, GUARDRAIL_FALLBACK_MESSAGE
 from app.models.schemas import ChatRequest
-from app.storage.history_store import init_db, get_history, is_session_locked
+from app.storage.history_store import init_db, get_history, is_session_locked, get_session_stage, set_session_locked
 from app.classifier.language_check import NON_ENGLISH_RESPONSE_MESSAGE, is_non_english
 from app.storage.history_store import init_db, get_history, is_session_locked, get_session_stage
 
@@ -244,12 +244,12 @@ async def test_long_non_english_message_blocked():
 
     response = await handle_message(request)
 
-    assert response.type == "error"
+    assert response.type == "non-english"
     assert response.message == NON_ENGLISH_RESPONSE_MESSAGE
 
     history = get_history(session_id)
     assert len(history) == 1
-    assert history[0]["response_type"] == "error"
+    assert history[0]["response_type"] == "non-english"
 
 @pytest.mark.asyncio
 async def test_normal_safe_response_advances_stage():
@@ -327,3 +327,66 @@ async def test_crisis_short_circuit_leaves_stage_untouched():
 
     assert response.type == "crisis"
     assert get_session_stage(session_id) == "Start"
+
+
+
+# --- over-reliance reminder  ---
+
+@pytest.mark.asyncio
+async def test_reminder_not_shown_before_threshold():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a safe generated reply"
+        mock_check.return_value = {"verdict": "safe"}
+
+        response = None
+        for _ in range(19):
+            response = await handle_message(ChatRequest(session_id=session_id, message="I've been feeling pretty anxious about work lately"))
+
+        assert response.reminder is False
+
+
+@pytest.mark.asyncio
+async def test_reminder_shown_at_threshold_then_periodically():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+
+    with patch("app.control_plane.classify_intent") as mock_classify, \
+         patch("app.control_plane.assemble_prompt") as mock_assemble, \
+         patch("app.control_plane.generate_response") as mock_generate, \
+         patch("app.control_plane.check_output") as mock_check:
+        mock_classify.return_value = {"risk_level": "low", "Llamaguard_response": "safe"}
+        mock_assemble.return_value = "a fake assembled prompt"
+        mock_generate.return_value = "a safe generated reply"
+        mock_check.return_value = {"verdict": "safe"}
+
+        response = None
+        for _ in range(20):
+            response = await handle_message(ChatRequest(session_id=session_id, message="I've been feeling pretty anxious about work lately"))
+        assert response.reminder is True  # turn 20: first reminder
+
+        for _ in range(9):
+            response = await handle_message(ChatRequest(session_id=session_id, message="I've been feeling pretty anxious about work lately"))
+        assert response.reminder is False  # turn 29: not due again yet
+
+        response = await handle_message(ChatRequest(session_id=session_id, message="I've been feeling pretty anxious about work lately"))
+        assert response.reminder is True  # turn 30: periodic reminder
+
+
+@pytest.mark.asyncio
+async def test_reminder_suppressed_on_locked_session():
+    init_db()
+    session_id = f"test-{uuid.uuid4()}"
+    set_session_locked(session_id, True)
+
+    response = await handle_message(ChatRequest(session_id=session_id, message="hello"))
+
+    assert response.type == "crisis"
+    assert response.reminder is False

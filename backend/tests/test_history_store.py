@@ -119,3 +119,55 @@ def test_delete_history_resets_stage():
 def test_add_entry_invalid_risk_level_rolls_back():
     with pytest.raises(Exception):
         add_entry("test-session", "msg", "response", "normal", "not-a-real-risk-level")
+
+
+# --- reminder counter  ---
+
+def test_turn_count_starts_at_one_for_new_session():
+    assert history_store.increment_turn_count("session1") == 1
+
+
+def test_turn_count_increments_across_calls():
+    history_store.increment_turn_count("session1")
+    history_store.increment_turn_count("session1")
+    assert history_store.increment_turn_count("session1") == 3
+
+
+def test_turn_count_is_session_scoped():
+    history_store.increment_turn_count("session1")
+    history_store.increment_turn_count("session1")
+    assert history_store.increment_turn_count("session2") == 1
+
+
+def test_turn_count_increments_for_session_with_existing_row():
+    history_store.add_entry("session1", "hi", "hello", "normal", "low")
+    assert history_store.increment_turn_count("session1") == 1
+
+
+def test_last_reminder_turn_defaults_to_zero():
+    assert history_store.get_last_reminder_turn("new-session") == 0
+
+
+def test_set_and_get_last_reminder_turn():
+    history_store.set_last_reminder_turn("session1", 20)
+    assert history_store.get_last_reminder_turn("session1") == 20
+
+
+def test_last_reminder_turn_is_session_scoped():
+    history_store.set_last_reminder_turn("session1", 20)
+    assert history_store.get_last_reminder_turn("session2") == 0
+
+
+def test_last_reminder_turn_for_session_with_existing_row():
+    history_store.increment_turn_count("session1")
+    history_store.set_last_reminder_turn("session1", 20)
+    assert history_store.get_last_reminder_turn("session1") == 20
+
+
+def test_delete_history_resets_turn_count_and_last_reminder_turn():
+    history_store.add_entry("session1", "hi", "hello", "normal", "low")
+    history_store.increment_turn_count("session1")
+    history_store.set_last_reminder_turn("session1", 20)
+    history_store.delete_history("session1")
+    assert history_store.increment_turn_count("session1") == 1
+    assert history_store.get_last_reminder_turn("session1") == 0

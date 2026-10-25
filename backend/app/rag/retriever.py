@@ -94,7 +94,16 @@ MODERATE_RISK_INSTRUCTION = (
     "'a professional' or 'professional support' in general terms."
 )
 
-def assemble_prompt(session_id: str, user_message: str, risk_level: str, stage: str = "Start") -> str:
+
+RELIANCE_REMINDER_INSTRUCTION = (
+    "This has been a long conversation. Naturally and gently acknowledge that you're glad to keep listening, "
+    "while reminding the person that you are an AI prototype and not a substitute for human or professional "
+    "support, without making it the sole focus of your reply. Do NOT invent, name, or provide specific crisis "
+    "hotlines, phone numbers, text services, or organisation names of any kind. The application handles crisis "
+    "resources separately and exclusively. Refer only to 'a professional' or 'professional support' in general terms."
+)
+
+def assemble_prompt(session_id: str, user_message: str, risk_level: str, stage: str = "Start", show_reminder: bool = False) -> str:
     system_prompt = load_system_prompt()
     stage_instruction = build_stage_instruction(stage)
 
@@ -120,9 +129,12 @@ def assemble_prompt(session_id: str, user_message: str, risk_level: str, stage: 
     if risk_level == "medium":
         sections.append(MODERATE_RISK_INSTRUCTION)
 
+    if show_reminder:
+        sections.append(RELIANCE_REMINDER_INSTRUCTION)
+
     sections.append(f"User: {user_message}")
 
     final_prompt = "\n\n".join(sections)
-    logger.debug("Assembled prompt for session %s | stage=%s:\n%s", session_id, stage, final_prompt)
+    logger.debug("Assembled prompt for session %s | stage=%s | reminder=%s:\n%s", session_id, stage, show_reminder, final_prompt)
 
     return final_prompt

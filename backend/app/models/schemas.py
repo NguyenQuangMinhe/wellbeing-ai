@@ -18,3 +18,4 @@ class ChatResponse(BaseModel):
     risk_level: Literal["low", "medium", "high"]
     end_session: bool
     stage: Literal["Start", "Explore", "Reflect", "Finish"]
+    reminder: bool = False

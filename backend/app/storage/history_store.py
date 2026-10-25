@@ -39,6 +39,62 @@ SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 def init_db() -> None:
     with get_connection() as conn:
         conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+        _ensure_reminder_columns(conn)
+
+
+##Reminder-counter functions. 
+# turn_count tracks how many turns a session has had
+# last_reminder_turn records the turn_count value at which a reminder was last shown
+
+def _ensure_reminder_columns(conn: sqlite3.Connection) -> None:
+    # CREATE TABLE IF NOT EXISTS in schema.sql only takes effect for a brand-new database. An existing sessions table from before this change needs these two
+    # columns added explicitly
+    existing = {row["name"] for row in conn.execute("PRAGMA table_info(sessions)")}
+    if "turn_count" not in existing:
+        conn.execute("ALTER TABLE sessions ADD COLUMN turn_count INTEGER NOT NULL DEFAULT 0")
+    if "last_reminder_turn" not in existing:
+        conn.execute("ALTER TABLE sessions ADD COLUMN last_reminder_turn INTEGER NOT NULL DEFAULT 0")
+
+def increment_turn_count(session_id: str) -> int:
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO sessions (session_id, turn_count) VALUES (?, 1)
+            ON CONFLICT(session_id) DO UPDATE SET
+                turn_count = turn_count + 1
+            """,
+            (session_id,),
+        )
+        row = conn.execute(
+            "SELECT turn_count FROM sessions WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+        return row["turn_count"]
+
+
+def get_last_reminder_turn(session_id: str) -> int:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT last_reminder_turn FROM sessions WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+        return row["last_reminder_turn"] if row else 0
+
+
+def set_last_reminder_turn(session_id: str, turn: int) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO sessions (session_id, last_reminder_turn)
+            VALUES (?, ?)
+            ON CONFLICT(session_id) DO UPDATE SET
+                last_reminder_turn = excluded.last_reminder_turn
+            """,
+            (session_id, turn),
+        )
+
+
+
 
 
 def add_entry(session_id: str, user_message: str, system_message: str, response_type: ResponseType, risk_level: RiskLevel) -> None:
